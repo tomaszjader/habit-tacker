@@ -7,4 +7,10 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  server: {
+    fs: {
+      strict: false
+    }
+  },
+  assetsInclude: ['**/*.svg']
 });
