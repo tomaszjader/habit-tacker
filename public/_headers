@@ -1,0 +1,30 @@
+# Headers for all files
+/*
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Headers for JavaScript files
+/*.js
+  Content-Type: application/javascript; charset=utf-8
+
+# Headers for TypeScript files
+/*.ts
+  Content-Type: application/javascript; charset=utf-8
+
+# Headers for JSX files
+/*.jsx
+  Content-Type: application/javascript; charset=utf-8
+
+# Headers for TSX files
+/*.tsx
+  Content-Type: application/javascript; charset=utf-8
+
+# Headers for CSS files
+/*.css
+  Content-Type: text/css; charset=utf-8
+
+# Headers for SVG files
+/*.svg
+  Content-Type: image/svg+xml; charset=utf-8

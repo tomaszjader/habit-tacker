@@ -12,5 +12,15 @@ export default defineConfig({
       strict: false
     }
   },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
   assetsInclude: ['**/*.svg']
 });
