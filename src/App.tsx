@@ -164,7 +164,7 @@ function AppContent() {
               <div>
                 <h1 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{t('habits.title')}</h1>
                 <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                  {completedToday} of {validHabitsToday.length} {t('habits.completed')}
+                  {completedToday} {t('habits.of')} {validHabitsToday.length} {t('habits.completed')}
                 </p>
               </div>
             </div>

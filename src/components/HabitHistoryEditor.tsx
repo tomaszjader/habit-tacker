@@ -60,7 +60,7 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
                 <div className="flex justify-between items-center mb-3">
                   <span className="font-medium text-gray-700">{label}</span>
                   <span className="text-sm text-gray-500">
-                    {dateObj.toLocaleDateString()}
+                    {dateObj.toLocaleDateString(t('language') === 'pl' ? 'pl-PL' : 'en-US')}
                   </span>
                 </div>
                 

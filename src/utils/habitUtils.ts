@@ -62,11 +62,12 @@ export const getStatusDisplay = (status: StatusType | null, habit: Habit, date: 
 };
 
 export const getDayName = (date: Date): string => {
-  return date.toLocaleDateString('en', { weekday: 'short' });
+  const locale = i18next.language === 'pl' ? 'pl-PL' : 'en-US';
+  return date.toLocaleDateString(locale, { weekday: 'short' });
 };
 
 export const getDateLabel = (daysAgo: number): string => {
-  if (daysAgo === 0) return 'Today';
-  if (daysAgo === 1) return 'Yesterday';
-  return `${daysAgo} days ago`;
+  if (daysAgo === 0) return i18next.t('habits.dateLabels.today');
+  if (daysAgo === 1) return i18next.t('habits.dateLabels.yesterday');
+  return i18next.t('habits.dateLabels.daysAgo', { count: daysAgo });
 };

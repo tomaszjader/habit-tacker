@@ -9,6 +9,7 @@
     "save": "Save",
     "cancel": "Cancel",
     "completed": "completed today",
+    "of": "of",
     "current": "Current: {{status}}",
     "clickToSelect": "Click to select status",
     "selectStatus": "Select status",
@@ -37,6 +38,11 @@
       "4": "Thursday",
       "5": "Friday",
       "6": "Saturday"
+    },
+    "dateLabels": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{{count}} days ago"
     }
   },
   "notifications": {

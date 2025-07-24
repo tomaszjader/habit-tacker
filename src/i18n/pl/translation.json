@@ -9,13 +9,14 @@
     "save": "Zapisz",
     "cancel": "Anuluj",
     "completed": "ukończone dzisiaj",
+    "of": "z",
     "current": "Aktualny: {{status}}",
     "clickToSelect": "Kliknij aby wybrać status",
     "selectStatus": "Wybierz status",
     "notApplicableToday": "Nie dotyczy dzisiaj",
     "successStreak": "Seria sukcesów",
     "streak": "Seria",
-    "bestStreak": "Najlepsza seria",
+    "bestStreak": "Max seria",
     "editHistory": "Edytuj historię",
     "delete": "Usuń nawyk",
     "deleteConfirm": "Czy na pewno chcesz usunąć ten nawyk? Ta akcja jest nieodwracalna.",
@@ -37,6 +38,11 @@
       "4": "Czwartek",
       "5": "Piątek",
       "6": "Sobota"
+    },
+    "dateLabels": {
+      "today": "Dzisiaj",
+      "yesterday": "Wczoraj",
+      "daysAgo": "{{count}} dni temu"
     }
   },
   "notifications": {
