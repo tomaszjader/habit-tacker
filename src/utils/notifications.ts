@@ -164,3 +164,21 @@ export const clearScheduledNotifications = (): void => {
     delete (window as any).habitNotificationTimeouts;
   }
 };
+
+export const clearAllNotifications = (): void => {
+  // Clear scheduled notifications
+  clearScheduledNotifications();
+  
+  // Send message to Service Worker to clear background notifications
+  sendMessageToServiceWorker({
+    type: 'CLEAR_NOTIFICATIONS'
+  });
+  
+  // Clear notification settings
+  const clearedSettings: NotificationSettings = {
+    enabled: false,
+    morningTime: '08:00',
+    eveningTime: '20:00'
+  };
+  saveNotificationSettings(clearedSettings);
+};

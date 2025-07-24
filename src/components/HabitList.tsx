@@ -7,9 +7,10 @@ interface HabitListProps {
   habits: Habit[];
   statuses: HabitStatus[];
   onStatusChange: (habitId: string, date: string, status: StatusType) => void;
+  onDeleteHabit: (habitId: string) => void;
 }
 
-const HabitList: React.FC<HabitListProps> = ({ habits, statuses, onStatusChange }) => {
+const HabitList: React.FC<HabitListProps> = ({ habits, statuses, onStatusChange, onDeleteHabit }) => {
   const { t } = useTranslation();
   
   if (habits.length === 0) {
@@ -30,6 +31,7 @@ const HabitList: React.FC<HabitListProps> = ({ habits, statuses, onStatusChange 
           habit={habit}
           statuses={statuses}
           onStatusChange={onStatusChange}
+          onDeleteHabit={onDeleteHabit}
         />
       ))}
     </div>

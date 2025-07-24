@@ -17,6 +17,9 @@
     "streak": "Seria",
     "bestStreak": "Najlepsza seria",
     "editHistory": "Edytuj historię",
+    "delete": "Usuń nawyk",
+    "deleteConfirm": "Czy na pewno chcesz usunąć ten nawyk? Ta akcja jest nieodwracalna.",
+    "deleted": "Nawyk został usunięty",
     "noHabitsYet": "Brak nawyków",
     "addFirstHabit": "Dodaj swój pierwszy nawyk, aby rozpocząć!",
     "status": {
@@ -44,7 +47,10 @@
     "eveningReminder": "Przypominam o znaczeniu przyzwyczajeń",
     "permission": "Zezwól na powiadomienia",
     "permissionDenied": "Powiadomienia zostały zablokowane",
-    "settings": "Ustawienia powiadomień"
+    "settings": "Ustawienia powiadomień",
+    "clearAll": "Usuń wszystkie powiadomienia",
+    "clearAllConfirm": "Czy na pewno chcesz usunąć wszystkie powiadomienia? Ta akcja wyłączy powiadomienia i zresetuje ustawienia.",
+    "cleared": "Wszystkie powiadomienia zostały usunięte"
   },
   "theme": {
     "light": "Jasny",

@@ -17,6 +17,9 @@
     "streak": "Streak",
     "bestStreak": "Best Streak",
     "editHistory": "Edit history",
+    "delete": "Delete habit",
+    "deleteConfirm": "Are you sure you want to delete this habit? This action cannot be undone.",
+    "deleted": "Habit has been deleted",
     "noHabitsYet": "No habits yet",
     "addFirstHabit": "Add your first habit to get started!",
     "status": {
@@ -44,7 +47,10 @@
     "eveningReminder": "Reminder about the importance of habits",
     "permission": "Allow notifications",
     "permissionDenied": "Notifications have been blocked",
-    "settings": "Notification settings"
+    "settings": "Notification settings",
+    "clearAll": "Clear all notifications",
+    "clearAllConfirm": "Are you sure you want to clear all notifications? This will disable notifications and reset settings.",
+    "cleared": "All notifications have been cleared"
   },
   "theme": {
     "light": "Light",

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Bell, BellOff, Clock } from 'lucide-react';
+import { X, Bell, BellOff, Clock, Trash2 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import {
   NotificationSettings,
@@ -8,7 +8,8 @@ import {
   saveNotificationSettings,
   requestNotificationPermission,
   scheduleNotifications,
-  clearScheduledNotifications
+  clearScheduledNotifications,
+  clearAllNotifications
 } from '../utils/notifications';
 
 interface NotificationSettingsProps {
@@ -53,6 +54,18 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ on
 
     if (newSettings.enabled) {
       scheduleNotifications(newSettings, t('notifications.morningReminder'));
+    }
+  };
+
+  const handleClearAllNotifications = () => {
+    if (window.confirm(t('notifications.clearAllConfirm'))) {
+      clearAllNotifications();
+      setSettings({
+        enabled: false,
+        morningTime: '08:00',
+        eveningTime: '20:00'
+      });
+      alert(t('notifications.cleared'));
     }
   };
 
@@ -161,6 +174,21 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ on
               </p>
             </div>
           )}
+        </div>
+
+        {/* Clear All Notifications Button */}
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
+          <button
+            onClick={handleClearAllNotifications}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              theme === 'dark' 
+                ? 'bg-red-900/20 hover:bg-red-900/30 text-red-300 border border-red-800' 
+                : 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200'
+            }`}
+          >
+            <Trash2 size={16} />
+            {t('notifications.clearAll')}
+          </button>
         </div>
       </div>
     </div>

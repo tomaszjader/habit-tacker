@@ -1,25 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Habit, HabitStatus, StatusType } from '../types/habit';
 import { getDateDaysAgo, isValidDay } from '../utils/storage';
 import { getHabitStatusForDate, getDateLabel } from '../utils/habitUtils';
 import StatusPicker from './StatusPicker';
+import Toast from './Toast';
 import { useTranslation } from 'react-i18next';
+import { Trash2 } from 'lucide-react';
 
 interface HabitHistoryEditorProps {
   habit: Habit;
   statuses: HabitStatus[];
   onStatusChange: (date: string, status: StatusType) => void;
+  onDeleteHabit: (habitId: string) => void;
   onClose: () => void;
 }
 
-const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses, onStatusChange, onClose }) => {
+const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses, onStatusChange, onDeleteHabit, onClose }) => {
   const { t } = useTranslation();
+  const [showToast, setShowToast] = useState(false);
+  
   const dates = [0, 1, 2, 3].map(daysAgo => ({
     daysAgo,
     date: getDateDaysAgo(daysAgo),
     dateObj: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
     label: getDateLabel(daysAgo)
   }));
+
+  const handleDeleteHabit = () => {
+    if (window.confirm(t('habits.deleteConfirm'))) {
+      onDeleteHabit(habit.id);
+      setShowToast(true);
+      // Zamknij modal po krótkim opóźnieniu, aby użytkownik zobaczył toast
+      setTimeout(() => {
+        onClose();
+      }, 500);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -59,12 +75,30 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
         </div>
         
         <div className="mt-6 pt-4 border-t border-gray-200">
-          <div className="text-center">
+          <div className="text-center mb-4">
             <span className="text-sm text-gray-600">{t('habits.successStreak')}: </span>
             <span className="font-bold text-lg text-green-600">{habit.successCount}</span>
           </div>
+          
+          {/* Delete Button */}
+          <button
+            onClick={handleDeleteHabit}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 rounded-lg border border-red-200 transition-colors"
+          >
+            <Trash2 size={18} />
+            {t('habits.delete')}
+          </button>
         </div>
       </div>
+      
+      {/* Toast */}
+      {showToast && (
+        <Toast
+          message={t('habits.deleted')}
+          type="success"
+          onClose={() => setShowToast(false)}
+        />
+      )}
     </div>
   );
 };

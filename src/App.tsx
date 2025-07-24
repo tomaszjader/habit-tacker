@@ -78,6 +78,13 @@ function AppContent() {
     setHabits(prev => [...prev, newHabit]);
   };
 
+  const deleteHabit = (habitId: string) => {
+    // Remove the habit
+    setHabits(prev => prev.filter(h => h.id !== habitId));
+    // Remove all statuses for this habit
+    setStatuses(prev => prev.filter(s => s.habitId !== habitId));
+  };
+
   const handleStatusChange = (habitId: string, date: string, newStatus: StatusType) => {
     const habit = habits.find(h => h.id === habitId);
     if (!habit) return;
@@ -149,7 +156,7 @@ function AppContent() {
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`}>
       {/* Header */}
-      <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} shadow-sm border-b`}>
+      <div className={`sticky top-0 z-40 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} shadow-sm border-b backdrop-blur-sm bg-opacity-95`}>
         <div className="max-w-md mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -201,6 +208,7 @@ function AppContent() {
           habits={habits}
           statuses={statuses}
           onStatusChange={handleStatusChange}
+          onDeleteHabit={deleteHabit}
           className={theme === 'dark' ? 'bg-gray-800 text-white' : ''}
         />
       </div>
