@@ -4,6 +4,7 @@ export interface Habit {
   validDays: number[]; // 0-6 (Sunday-Saturday)
   createdAt: string;
   successCount: number;
+  bestStreak: number; // Największa seria sukcesów
 }
 
 export interface HabitStatus {

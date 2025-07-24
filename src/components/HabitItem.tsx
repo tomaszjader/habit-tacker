@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Habit, HabitStatus, StatusType } from '../types/habit';
 import { formatDate, isValidDay } from '../utils/storage';
 import { getHabitStatusForDate, getStatusDisplay } from '../utils/habitUtils';
+import { triggerCelebration, celebrateStreak } from '../utils/celebrationEffects';
 import HabitHistoryEditor from './HabitHistoryEditor';
+import StatusPicker from './StatusPicker';
 import { Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface HabitItemProps {
   habit: Habit;
@@ -12,24 +15,39 @@ interface HabitItemProps {
 }
 
 const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange }) => {
+  const { t } = useTranslation();
   const [showHistory, setShowHistory] = useState(false);
+  const [showStatusPicker, setShowStatusPicker] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const today = new Date();
   const todayStr = formatDate(today);
   const currentStatus = getHabitStatusForDate(habit.id, todayStr, statuses);
   const statusDisplay = getStatusDisplay(currentStatus, habit, today);
   const isValidToday = isValidDay(habit, today);
 
-  const cycleStatus = () => {
+  const toggleStatusPicker = () => {
     if (!isValidToday) return;
+    setShowStatusPicker(!showStatusPicker);
+  };
+
+  const handleStatusChange = (newStatus: StatusType) => {
+    if (!isValidToday || !buttonRef.current) return;
     
-    const statusCycle: (StatusType | null)[] = [null, 'completed', 'partial', 'failed', 'not-applicable'];
-    const currentIndex = statusCycle.indexOf(currentStatus);
-    const nextIndex = (currentIndex + 1) % statusCycle.length;
-    const nextStatus = statusCycle[nextIndex];
+    // Trigger celebration effects
+    triggerCelebration(newStatus, buttonRef.current);
     
-    if (nextStatus) {
-      onStatusChange(habit.id, todayStr, nextStatus);
+    // Update status
+    onStatusChange(habit.id, todayStr, newStatus);
+    
+    // Check for streak celebration (only for completed status)
+    if (newStatus === 'completed') {
+      setTimeout(() => {
+        celebrateStreak(habit.successCount + 1, buttonRef.current!);
+      }, 800);
     }
+    
+    // Close the status picker
+    setShowStatusPicker(false);
   };
 
   const handleHistoryStatusChange = (date: string, status: StatusType) => {
@@ -46,7 +64,10 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange }
             </h3>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-sm text-gray-500">
-                Streak: {habit.successCount}
+                {t('habits.streak')}: {habit.successCount}
+              </span>
+              <span className="text-xs text-gray-400">
+                ({t('habits.bestStreak')}: {habit.bestStreak})
               </span>
               <div className="flex gap-1">
                 {[0, 1, 2, 3, 4, 5, 6].map(day => (
@@ -57,7 +78,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange }
                         ? 'bg-blue-400' 
                         : 'bg-gray-200'
                     }`}
-                    title={['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]}
+                    title={t(`habits.days.${day}`)}
                   />
                 ))}
               </div>
@@ -68,28 +89,41 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange }
             <button
               onClick={() => setShowHistory(true)}
               className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-              title="Edit history"
+              title={t('habits.editHistory')}
             >
               <Settings size={18} />
             </button>
             
             <button
-              onClick={cycleStatus}
+              ref={buttonRef}
+              onClick={toggleStatusPicker}
               disabled={!isValidToday}
               className={`
-                w-16 h-16 rounded-full flex items-center justify-center text-2xl
+                celebration-button w-16 h-16 rounded-full flex items-center justify-center text-2xl
                 transition-all duration-200 active:scale-95
                 ${isValidToday 
                   ? 'bg-gray-50 hover:bg-gray-100 border-2 border-gray-200' 
                   : 'bg-gray-100 cursor-not-allowed'
                 }
               `}
-              title={isValidToday ? `Current: ${statusDisplay.label}` : 'Not applicable today'}
+              title={isValidToday ? t('habits.clickToSelect') : t('habits.notApplicableToday')}
             >
               {statusDisplay.emoji}
             </button>
           </div>
         </div>
+        
+        {/* Status Picker Dropdown */}
+        {showStatusPicker && isValidToday && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+            <h4 className="text-sm font-medium text-gray-700 mb-3">{t('habits.selectStatus')}</h4>
+            <StatusPicker
+              currentStatus={currentStatus}
+              onStatusChange={handleStatusChange}
+              isValidDay={isValidToday}
+            />
+          </div>
+        )}
       </div>
 
       {showHistory && (

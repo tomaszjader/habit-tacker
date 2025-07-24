@@ -1,5 +1,6 @@
 import { Habit, HabitStatus, StatusType } from '../types/habit';
 import { isValidDay } from './storage';
+import i18next from 'i18next';
 
 export const getHabitStatusForDate = (
   habitId: string,
@@ -14,7 +15,7 @@ export const updateSuccessCount = (
   habit: Habit,
   newStatus: StatusType,
   oldStatus: StatusType | null
-): number => {
+): { successCount: number; bestStreak: number } => {
   let newCount = habit.successCount;
   
   // Remove old status effect
@@ -28,8 +29,13 @@ export const updateSuccessCount = (
   } else if (newStatus === 'failed') {
     newCount = 0; // Reset counter on failure
   }
+  // 'partial' status freezes the streak - no change to counter
+  // 'not-applicable' status also doesn't affect the streak
   
-  return newCount;
+  // Update best streak if current streak is higher
+  const newBestStreak = Math.max(habit.bestStreak, newCount);
+  
+  return { successCount: newCount, bestStreak: newBestStreak };
 };
 
 export const getStatusDisplay = (status: StatusType | null, habit: Habit, date: Date): {
@@ -43,13 +49,13 @@ export const getStatusDisplay = (status: StatusType | null, habit: Habit, date: 
   
   switch (status) {
     case 'completed':
-      return { emoji: '✅', color: 'text-green-500', label: 'Completed' };
+      return { emoji: '✅', color: 'text-green-500', label: i18next.t('habits.status.completed') };
     case 'partial':
-      return { emoji: '💛', color: 'text-yellow-500', label: 'Partial' };
+      return { emoji: '🟡', color: 'text-yellow-500', label: i18next.t('habits.status.partial') };
     case 'failed':
-      return { emoji: '❌', color: 'text-red-500', label: 'Failed' };
+      return { emoji: '❌', color: 'text-red-500', label: i18next.t('habits.status.failed') };
     case 'not-applicable':
-      return { emoji: '➖', color: 'text-gray-400', label: 'Not applicable' };
+      return { emoji: '➖', color: 'text-gray-400', label: i18next.t('habits.status.notApplicable') };
     default:
       return { emoji: '⚪', color: 'text-gray-300', label: 'Not set' };
   }

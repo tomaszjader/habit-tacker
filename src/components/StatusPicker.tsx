@@ -1,5 +1,6 @@
 import React from 'react';
 import { StatusType } from '../types/habit';
+import { useTranslation } from 'react-i18next';
 
 interface StatusPickerProps {
   currentStatus: StatusType | null;
@@ -12,6 +13,7 @@ const StatusPicker: React.FC<StatusPickerProps> = ({
   onStatusChange,
   isValidDay
 }) => {
+  const { t } = useTranslation();
   if (!isValidDay) {
     return (
       <div className="flex justify-center">
@@ -24,7 +26,7 @@ const StatusPicker: React.FC<StatusPickerProps> = ({
 
   const statuses: { type: StatusType; emoji: string; color: string; label: string }[] = [
     { type: 'completed', emoji: '✅', color: 'bg-green-100 border-green-300', label: 'Completed' },
-    { type: 'partial', emoji: '💛', color: 'bg-yellow-100 border-yellow-300', label: 'Partial' },
+    { type: 'partial', emoji: '🟡', color: 'bg-yellow-100 border-yellow-300', label: 'Partial' },
     { type: 'failed', emoji: '❌', color: 'bg-red-100 border-red-300', label: 'Failed' },
     { type: 'not-applicable', emoji: '➖', color: 'bg-gray-100 border-gray-300', label: 'Skip' }
   ];
@@ -43,7 +45,7 @@ const StatusPicker: React.FC<StatusPickerProps> = ({
               : 'bg-white border-gray-200 hover:bg-gray-50'
             }
           `}
-          title={status.label}
+          title={t(`habits.status.${status.type}`)}
         >
           {status.emoji}
         </button>

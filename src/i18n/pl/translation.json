@@ -1,0 +1,53 @@
+{
+  "language": "pl",
+  "habits": {
+    "title": "Nawyki",
+    "add": "Dodaj nawyk",
+    "name": "Nazwa nawyku",
+    "validDays": "Aktywne dni",
+    "selectDays": "Wybierz dni, w których nawyk obowiązuje",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "completed": "ukończone dzisiaj",
+    "current": "Aktualny: {{status}}",
+    "clickToSelect": "Kliknij aby wybrać status",
+    "selectStatus": "Wybierz status",
+    "notApplicableToday": "Nie dotyczy dzisiaj",
+    "successStreak": "Seria sukcesów",
+    "streak": "Seria",
+    "bestStreak": "Najlepsza seria",
+    "editHistory": "Edytuj historię",
+    "noHabitsYet": "Brak nawyków",
+    "addFirstHabit": "Dodaj swój pierwszy nawyk, aby rozpocząć!",
+    "status": {
+      "completed": "Ukończone",
+      "partial": "Częściowo",
+      "failed": "Nieukończone",
+      "notApplicable": "Nie dotyczy",
+      "notSet": "Nie ustawiono"
+    },
+    "days": {
+      "0": "Niedziela",
+      "1": "Poniedziałek",
+      "2": "Wtorek",
+      "3": "Środa",
+      "4": "Czwartek",
+      "5": "Piątek",
+      "6": "Sobota"
+    }
+  },
+  "notifications": {
+    "title": "Powiadomienia",
+    "enable": "Włącz powiadomienia",
+    "disable": "Wyłącz powiadomienia",
+    "morningReminder": "Przypominam o znaczeniu przyzwyczajeń",
+    "eveningReminder": "Przypominam o znaczeniu przyzwyczajeń",
+    "permission": "Zezwól na powiadomienia",
+    "permissionDenied": "Powiadomienia zostały zablokowane",
+    "settings": "Ustawienia powiadomień"
+  },
+  "theme": {
+    "light": "Jasny",
+    "dark": "Ciemny"
+  }
+}

@@ -6,7 +6,14 @@ const STATUS_KEY = 'habit-tracker-status';
 export const loadHabits = (): Habit[] => {
   try {
     const stored = localStorage.getItem(HABITS_KEY);
-    return stored ? JSON.parse(stored) : [];
+    if (!stored) return [];
+    
+    const habits = JSON.parse(stored);
+    // Migracja: dodaj bestStreak dla istniejących nawyków
+    return habits.map((habit: any) => ({
+      ...habit,
+      bestStreak: habit.bestStreak ?? habit.successCount ?? 0
+    }));
   } catch {
     return [];
   }

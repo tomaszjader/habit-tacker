@@ -1,6 +1,7 @@
 import React from 'react';
 import { Habit, HabitStatus, StatusType } from '../types/habit';
 import HabitItem from './HabitItem';
+import { useTranslation } from 'react-i18next';
 
 interface HabitListProps {
   habits: Habit[];
@@ -9,12 +10,14 @@ interface HabitListProps {
 }
 
 const HabitList: React.FC<HabitListProps> = ({ habits, statuses, onStatusChange }) => {
+  const { t } = useTranslation();
+  
   if (habits.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-6xl mb-4">🎯</div>
-        <h2 className="text-xl font-semibold text-gray-600 mb-2">No habits yet</h2>
-        <p className="text-gray-500">Add your first habit to get started!</p>
+        <h2 className="text-xl font-semibold text-gray-600 mb-2">{t('habits.noHabitsYet')}</h2>
+        <p className="text-gray-500">{t('habits.addFirstHabit')}</p>
       </div>
     );
   }

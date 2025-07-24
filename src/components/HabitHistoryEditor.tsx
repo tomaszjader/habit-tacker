@@ -3,6 +3,7 @@ import { Habit, HabitStatus, StatusType } from '../types/habit';
 import { getDateDaysAgo, isValidDay } from '../utils/storage';
 import { getHabitStatusForDate, getDateLabel } from '../utils/habitUtils';
 import StatusPicker from './StatusPicker';
+import { useTranslation } from 'react-i18next';
 
 interface HabitHistoryEditorProps {
   habit: Habit;
@@ -11,12 +12,8 @@ interface HabitHistoryEditorProps {
   onClose: () => void;
 }
 
-const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({
-  habit,
-  statuses,
-  onStatusChange,
-  onClose
-}) => {
+const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses, onStatusChange, onClose }) => {
+  const { t } = useTranslation();
   const dates = [0, 1, 2, 3].map(daysAgo => ({
     daysAgo,
     date: getDateDaysAgo(daysAgo),
@@ -63,7 +60,7 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({
         
         <div className="mt-6 pt-4 border-t border-gray-200">
           <div className="text-center">
-            <span className="text-sm text-gray-600">Success Streak: </span>
+            <span className="text-sm text-gray-600">{t('habits.successStreak')}: </span>
             <span className="font-bold text-lg text-green-600">{habit.successCount}</span>
           </div>
         </div>

@@ -5,39 +5,75 @@ import {
   saveHabits, 
   loadHabitStatuses, 
   saveHabitStatuses,
-  formatDate 
+  formatDate,
+  isValidDay
 } from './utils/storage';
 import { updateSuccessCount, getHabitStatusForDate } from './utils/habitUtils';
+import {
+  loadNotificationSettings,
+  scheduleNotifications,
+  clearScheduledNotifications
+} from './utils/notifications';
+import { createConfetti, playSuccessSound } from './utils/celebrationEffects';
 import HabitList from './components/HabitList';
 import AddHabitForm from './components/AddHabitForm';
-import { Plus, Target } from 'lucide-react';
+import NotificationSettings from './components/NotificationSettings';
+import Logo from './components/Logo';
+import { Plus, Moon, Sun, Languages, Bell } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import './i18n/config';
+import { changeLanguage } from './i18n/config';
 
-function App() {
+function AppContent() {
+  const { t } = useTranslation();
+  const { theme, toggleTheme } = useTheme();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [statuses, setStatuses] = useState<HabitStatus[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Load data on mount
   useEffect(() => {
     setHabits(loadHabits());
     setStatuses(loadHabitStatuses());
+    setIsLoaded(true);
   }, []);
 
-  // Save data when it changes
+  // Save data when it changes (but not on initial load)
   useEffect(() => {
-    saveHabits(habits);
-  }, [habits]);
+    if (isLoaded) {
+      saveHabits(habits);
+    }
+  }, [habits, isLoaded]);
 
   useEffect(() => {
-    saveHabitStatuses(statuses);
-  }, [statuses]);
+    if (isLoaded) {
+      saveHabitStatuses(statuses);
+    }
+  }, [statuses, isLoaded]);
 
-  const addHabit = (habitData: Omit<Habit, 'id' | 'createdAt' | 'successCount'>) => {
+  // Initialize notifications on mount
+  useEffect(() => {
+    const settings = loadNotificationSettings();
+    if (settings.enabled) {
+      scheduleNotifications(settings, t('notifications.morningReminder'));
+    }
+
+    // Cleanup on unmount
+    return () => {
+      clearScheduledNotifications();
+    };
+  }, [t]);
+
+  const addHabit = (habitData: Omit<Habit, 'id' | 'createdAt' | 'successCount' | 'bestStreak'>) => {
     const newHabit: Habit = {
       ...habitData,
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
-      successCount: 0
+      successCount: 0,
+      bestStreak: 0
     };
     setHabits(prev => [...prev, newHabit]);
   };
@@ -47,11 +83,11 @@ function App() {
     if (!habit) return;
 
     const oldStatus = getHabitStatusForDate(habitId, date, statuses);
-    const newSuccessCount = updateSuccessCount(habit, newStatus, oldStatus);
+    const { successCount: newSuccessCount, bestStreak: newBestStreak } = updateSuccessCount(habit, newStatus, oldStatus);
 
-    // Update habit success count
+    // Update habit success count and best streak
     setHabits(prev => prev.map(h => 
-      h.id === habitId ? { ...h, successCount: newSuccessCount } : h
+      h.id === habitId ? { ...h, successCount: newSuccessCount, bestStreak: newBestStreak } : h
     ));
 
     // Update status
@@ -62,35 +98,99 @@ function App() {
   };
 
   const todayStr = formatDate(new Date());
-  const completedToday = habits.filter(habit => {
+  const validHabitsToday = habits.filter(habit => isValidDay(habit, new Date()));
+  const completedToday = validHabitsToday.filter(habit => {
     const status = getHabitStatusForDate(habit.id, todayStr, statuses);
     return status === 'completed';
   }).length;
 
+  // Check for all habits completion celebration
+  useEffect(() => {
+    if (validHabitsToday.length > 0 && completedToday === validHabitsToday.length && completedToday > 1) {
+      // All valid habits for today are completed!
+      setTimeout(() => {
+        playSuccessSound();
+        const headerElement = document.querySelector('h1');
+        if (headerElement) {
+          createConfetti(headerElement);
+          
+          // Show completion message
+          const message = document.createElement('div');
+          message.textContent = '🎉 Wszystkie nawyki ukończone! Świetna robota! 🎉';
+          message.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 25px 35px;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 10000;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            animation: streak-celebration 4s ease-out forwards;
+            text-align: center;
+          `;
+          
+          document.body.appendChild(message);
+          
+          setTimeout(() => {
+            if (message.parentNode) {
+              message.parentNode.removeChild(message);
+            }
+          }, 4000);
+        }
+      }, 1000);
+    }
+  }, [completedToday, validHabitsToday.length]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`}>
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-100">
+      <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} shadow-sm border-b`}>
         <div className="max-w-md mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
-                <Target className="w-6 h-6 text-white" />
-              </div>
+              <Logo size={40} />
               <div>
-                <h1 className="text-xl font-bold text-gray-800">Habit Tracker</h1>
-                <p className="text-sm text-gray-500">
-                  {completedToday} of {habits.length} completed today
+                <h1 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{t('habits.title')}</h1>
+                <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {completedToday} of {validHabitsToday.length} {t('habits.completed')}
                 </p>
               </div>
             </div>
             
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="w-12 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 active:scale-95"
-            >
-              <Plus size={24} />
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => changeLanguage(t('language') === 'pl' ? 'en' : 'pl')}
+                className={`celebration-button w-10 h-10 ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} rounded-full flex items-center justify-center transition-all duration-200 active:scale-95`}
+              >
+                <Languages size={20} className={theme === 'dark' ? 'text-white' : 'text-gray-600'} />
+              </button>
+              <button
+                onClick={() => setShowNotificationSettings(true)}
+                className={`celebration-button w-10 h-10 ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} rounded-full flex items-center justify-center transition-all duration-200 active:scale-95`}
+              >
+                <Bell size={20} className={theme === 'dark' ? 'text-white' : 'text-gray-600'} />
+              </button>
+              <button
+                onClick={toggleTheme}
+                className={`celebration-button w-10 h-10 ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} rounded-full flex items-center justify-center transition-all duration-200 active:scale-95`}
+              >
+                {theme === 'dark' ? 
+                  <Sun size={20} className="text-white" /> : 
+                  <Moon size={20} className="text-gray-600" />
+                }
+              </button>
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="celebration-button w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 active:scale-95"
+              >
+                <Plus size={20} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -101,10 +201,10 @@ function App() {
           habits={habits}
           statuses={statuses}
           onStatusChange={handleStatusChange}
+          className={theme === 'dark' ? 'bg-gray-800 text-white' : ''}
         />
       </div>
 
-      {/* Add Habit Form */}
       {showAddForm && (
         <AddHabitForm
           onAddHabit={addHabit}
@@ -112,9 +212,20 @@ function App() {
         />
       )}
 
-      {/* Bottom padding for mobile */}
-      <div className="h-20" />
+      {showNotificationSettings && (
+        <NotificationSettings
+          onClose={() => setShowNotificationSettings(false)}
+        />
+      )}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }
 

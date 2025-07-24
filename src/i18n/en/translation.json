@@ -1,0 +1,53 @@
+{
+  "language": "en",
+  "habits": {
+    "title": "Habits",
+    "add": "Add habit",
+    "name": "Habit name",
+    "validDays": "Active days",
+    "selectDays": "Select the days when this habit applies",
+    "save": "Save",
+    "cancel": "Cancel",
+    "completed": "completed today",
+    "current": "Current: {{status}}",
+    "clickToSelect": "Click to select status",
+    "selectStatus": "Select status",
+    "notApplicableToday": "Not applicable today",
+    "successStreak": "Success Streak",
+    "streak": "Streak",
+    "bestStreak": "Best Streak",
+    "editHistory": "Edit history",
+    "noHabitsYet": "No habits yet",
+    "addFirstHabit": "Add your first habit to get started!",
+    "status": {
+      "completed": "Completed",
+      "partial": "Partial",
+      "failed": "Failed",
+      "notApplicable": "Not applicable",
+      "notSet": "Not set"
+    },
+    "days": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "enable": "Enable notifications",
+    "disable": "Disable notifications",
+    "morningReminder": "Reminder about the importance of habits",
+    "eveningReminder": "Reminder about the importance of habits",
+    "permission": "Allow notifications",
+    "permissionDenied": "Notifications have been blocked",
+    "settings": "Notification settings"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark"
+  }
+}

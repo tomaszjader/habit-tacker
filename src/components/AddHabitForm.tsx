@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Habit } from '../types/habit';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface AddHabitFormProps {
   onAddHabit: (habit: Omit<Habit, 'id' | 'createdAt' | 'successCount'>) => void;
@@ -8,10 +9,11 @@ interface AddHabitFormProps {
 }
 
 const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [validDays, setValidDays] = useState<number[]>([1, 2, 3, 4, 5]); // Weekdays by default
 
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayNames = [0, 1, 2, 3, 4, 5, 6].map(day => t(`habits.days.${day}`));
 
   const toggleDay = (day: number) => {
     setValidDays(prev => 
@@ -35,7 +37,7 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-gray-800">Add New Habit</h2>
+          <h2 className="text-xl font-bold text-gray-800">{t('habits.add')}</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -47,14 +49,14 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="habitName" className="block text-sm font-medium text-gray-700 mb-2">
-              Habit Name
+              {t('habits.name')}
             </label>
             <input
               id="habitName"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Morning Exercise"
+              placeholder={t('habits.name')}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               autoFocus
             />
@@ -62,7 +64,7 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              Active Days
+              {t('habits.validDays')}
             </label>
             <div className="grid grid-cols-7 gap-2">
               {dayNames.map((day, index) => (
@@ -71,19 +73,20 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
                   type="button"
                   onClick={() => toggleDay(index)}
                   className={`
-                    py-2 px-1 text-sm font-medium rounded-lg transition-all duration-200
+                    py-2 px-1 text-sm font-medium rounded-lg transition-all duration-200 truncate
                     ${validDays.includes(index)
                       ? 'bg-blue-500 text-white shadow-md'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }
                   `}
+                  title={day}
                 >
                   {day}
                 </button>
               ))}
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Select the days when this habit applies
+              {t('habits.selectDays')}
             </p>
           </div>
 
@@ -93,14 +96,14 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
               onClick={onClose}
               className="flex-1 py-3 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
             >
-              Cancel
+              {t('habits.cancel')}
             </button>
             <button
               type="submit"
               disabled={!name.trim() || validDays.length === 0}
               className="flex-1 py-3 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
             >
-              Add Habit
+              {t('habits.save')}
             </button>
           </div>
         </form>
