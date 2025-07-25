@@ -1,24 +1,86 @@
 // Service Worker for background notifications
 const CACHE_NAME = 'habit-tracker-v1';
 const NOTIFICATION_SETTINGS_KEY = 'habit-tracker-notifications';
+const DB_NAME = 'HabitTrackerDB';
+const DB_VERSION = 1;
 
-// Store notification settings in IndexedDB for service worker access
+// Store notification settings and scheduled alarms
 let notificationSettings = {
   enabled: false,
   morningTime: '08:00',
   eveningTime: '20:00'
 };
 
+let scheduledAlarms = new Map();
+
+// IndexedDB helper functions
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('settings')) {
+        db.createObjectStore('settings', { keyPath: 'key' });
+      }
+    };
+  });
+}
+
+async function saveSettingsToDB(settings) {
+  try {
+    const db = await openDB();
+    const transaction = db.transaction(['settings'], 'readwrite');
+    const store = transaction.objectStore('settings');
+    await store.put({ key: 'notifications', value: settings });
+  } catch (error) {
+    console.error('Error saving settings to IndexedDB:', error);
+  }
+}
+
+async function loadSettingsFromDB() {
+  try {
+    const db = await openDB();
+    const transaction = db.transaction(['settings'], 'readonly');
+    const store = transaction.objectStore('settings');
+    const result = await store.get('notifications');
+    return result ? result.value : notificationSettings;
+  } catch (error) {
+    console.error('Error loading settings from IndexedDB:', error);
+    return notificationSettings;
+  }
+}
+
 // Install event
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
-  self.skipWaiting();
+  event.waitUntil(
+    Promise.all([
+      self.skipWaiting(),
+      loadSettingsFromDB().then(settings => {
+        notificationSettings = settings;
+      })
+    ])
+  );
 });
 
 // Activate event
 self.addEventListener('activate', (event) => {
   console.log('Service Worker activating...');
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    Promise.all([
+      self.clients.claim(),
+      loadSettingsFromDB().then(settings => {
+        notificationSettings = settings;
+        if (settings.enabled) {
+          scheduleNotificationsWithSettings(settings);
+        }
+      })
+    ])
+  );
 });
 
 // Handle notification click
@@ -47,16 +109,18 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// Show notification from service worker
-function showBackgroundNotification(title, body) {
+// Show notification from service worker with enhanced mobile support
+function showBackgroundNotification(title, body, tag = 'habit-reminder') {
   const options = {
     body: body,
     icon: '/favicon.svg',
     badge: '/favicon.svg',
-    tag: 'habit-reminder',
+    tag: tag,
     renotify: true,
-    requireInteraction: false,
+    requireInteraction: true, // Keep notification visible until user interacts
     silent: false,
+    vibrate: [200, 100, 200], // Vibration pattern for mobile
+    timestamp: Date.now(),
     actions: [
       {
         action: 'open',
@@ -70,33 +134,50 @@ function showBackgroundNotification(title, body) {
     ],
     data: {
       url: '/',
-      timestamp: Date.now()
-    }
+      timestamp: Date.now(),
+      tag: tag
+    },
+    // Enhanced mobile support
+    persistent: true,
+    sticky: true
   };
 
   return self.registration.showNotification(title, options);
 }
 
-// Schedule notifications with specific settings
+// Clear all scheduled alarms
+function clearAllAlarms() {
+  scheduledAlarms.forEach((timeoutId) => {
+    clearTimeout(timeoutId);
+  });
+  scheduledAlarms.clear();
+}
+
+// Schedule notifications with enhanced mobile support
 function scheduleNotificationsWithSettings(settings) {
   if (!settings.enabled) {
+    clearAllAlarms();
     return;
   }
 
   // Store settings for later use
   notificationSettings = settings;
+  saveSettingsToDB(settings);
+
+  // Clear existing alarms
+  clearAllAlarms();
 
   const now = new Date();
   
-  // Schedule for today and tomorrow
-  scheduleNotificationsForDate(new Date(now), settings);
-  
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  scheduleNotificationsForDate(tomorrow, settings);
+  // Schedule for multiple days to ensure continuity
+  for (let i = 0; i < 7; i++) {
+    const targetDate = new Date(now);
+    targetDate.setDate(targetDate.getDate() + i);
+    scheduleNotificationsForDate(targetDate, settings);
+  }
 }
 
-// Schedule notifications for a specific date
+// Schedule notifications for a specific date with improved reliability
 function scheduleNotificationsForDate(date, settings) {
   const now = new Date();
   
@@ -110,22 +191,36 @@ function scheduleNotificationsForDate(date, settings) {
   const eveningTime = new Date(date);
   eveningTime.setHours(eveningHour, eveningMinute, 0, 0);
 
-  // Only schedule if the time is in the future
+  // Only schedule if the time is in the future and within reasonable range
   if (morningTime > now) {
     const morningDelay = morningTime.getTime() - now.getTime();
-    if (morningDelay < 24 * 60 * 60 * 1000) { // Within 24 hours
-      setTimeout(() => {
-        showBackgroundNotification('Poranne przypomnienie', 'Czas na poranne nawyki! 🌅');
+    if (morningDelay < 7 * 24 * 60 * 60 * 1000) { // Within 7 days
+      const morningAlarmId = setTimeout(() => {
+        showBackgroundNotification(
+          'Poranne przypomnienie', 
+          'Czas na poranne nawyki! 🌅',
+          `morning-${date.toDateString()}`
+        );
+        scheduledAlarms.delete(`morning-${date.toDateString()}`);
       }, morningDelay);
+      
+      scheduledAlarms.set(`morning-${date.toDateString()}`, morningAlarmId);
     }
   }
 
   if (eveningTime > now) {
     const eveningDelay = eveningTime.getTime() - now.getTime();
-    if (eveningDelay < 24 * 60 * 60 * 1000) { // Within 24 hours
-      setTimeout(() => {
-        showBackgroundNotification('Wieczorne przypomnienie', 'Czas na wieczorne nawyki! 🌙');
+    if (eveningDelay < 7 * 24 * 60 * 60 * 1000) { // Within 7 days
+      const eveningAlarmId = setTimeout(() => {
+        showBackgroundNotification(
+          'Wieczorne przypomnienie', 
+          'Czas na wieczorne nawyki! 🌙',
+          `evening-${date.toDateString()}`
+        );
+        scheduledAlarms.delete(`evening-${date.toDateString()}`);
       }, eveningDelay);
+      
+      scheduledAlarms.set(`evening-${date.toDateString()}`, eveningAlarmId);
     }
   }
 }
@@ -139,21 +234,63 @@ self.addEventListener('message', (event) => {
   
   if (event.data && event.data.type === 'UPDATE_SETTINGS') {
     notificationSettings = event.data.settings;
+    saveSettingsToDB(event.data.settings);
+    if (event.data.settings.enabled) {
+      scheduleNotificationsWithSettings(event.data.settings);
+    } else {
+      clearAllAlarms();
+    }
+  }
+
+  if (event.data && event.data.type === 'CLEAR_NOTIFICATIONS') {
+    clearAllAlarms();
   }
 });
 
-// Background sync for notifications (if supported)
+// Background sync for notifications (enhanced for mobile)
 self.addEventListener('sync', (event) => {
   if (event.tag === 'schedule-notifications') {
-    event.waitUntil(scheduleNotificationsWithSettings(notificationSettings));
+    event.waitUntil(
+      loadSettingsFromDB().then(settings => {
+        if (settings.enabled) {
+          scheduleNotificationsWithSettings(settings);
+        }
+      })
+    );
   }
 });
 
-// Periodic background sync (if supported)
+// Periodic background sync (enhanced for mobile)
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'habit-notifications') {
-    event.waitUntil(scheduleNotificationsWithSettings(notificationSettings));
+    event.waitUntil(
+      loadSettingsFromDB().then(settings => {
+        if (settings.enabled) {
+          scheduleNotificationsWithSettings(settings);
+        }
+      })
+    );
   }
+});
+
+// Handle visibility change to reschedule notifications
+self.addEventListener('visibilitychange', (event) => {
+  if (document.visibilityState === 'visible') {
+    loadSettingsFromDB().then(settings => {
+      if (settings.enabled) {
+        scheduleNotificationsWithSettings(settings);
+      }
+    });
+  }
+});
+
+// Handle page focus to ensure notifications are scheduled
+self.addEventListener('focus', (event) => {
+  loadSettingsFromDB().then(settings => {
+    if (settings.enabled) {
+      scheduleNotificationsWithSettings(settings);
+    }
+  });
 });
 
 // Handle push events (for future Web Push implementation)
@@ -161,7 +298,11 @@ self.addEventListener('push', (event) => {
   if (event.data) {
     const data = event.data.json();
     event.waitUntil(
-      showBackgroundNotification(data.title || 'Habit Tracker', data.body || 'Przypomnienie o nawykach')
+      showBackgroundNotification(
+        data.title || 'Habit Tracker', 
+        data.body || 'Przypomnienie o nawykach',
+        data.tag || 'push-notification'
+      )
     );
   }
 });

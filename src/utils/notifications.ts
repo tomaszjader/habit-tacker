@@ -83,6 +83,19 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
   if (granted) {
     // Register service worker when permission is granted
     await registerServiceWorker();
+    
+    // Request persistent notification permission for mobile
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        // Check if we can request persistent notifications
+        if ('showNotification' in registration) {
+          console.log('Persistent notifications supported');
+        }
+      } catch (error) {
+        console.warn('Could not enable persistent notifications:', error);
+      }
+    }
   }
   
   return granted;
@@ -115,7 +128,18 @@ export const scheduleNotifications = (settings: NotificationSettings, reminderTe
     reminderText: reminderText
   });
 
-  // Also schedule immediate notifications as fallback
+  // Also try to register background sync for better mobile support
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(registration => {
+      if ('sync' in registration) {
+        return registration.sync.register('schedule-notifications');
+      }
+    }).catch(error => {
+      console.warn('Background sync registration failed:', error);
+    });
+  }
+
+  // Schedule immediate notifications as fallback (for desktop/immediate use)
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
@@ -130,7 +154,19 @@ export const scheduleNotifications = (settings: NotificationSettings, reminderTe
   }
 
   const morningTimeout = setTimeout(() => {
-    showNotification('Poranne przypomnienie', reminderText);
+    // Use Service Worker notification if available, fallback to regular notification
+    if (serviceWorkerRegistration && 'showNotification' in serviceWorkerRegistration) {
+      serviceWorkerRegistration.showNotification('Poranne przypomnienie', {
+        body: reminderText,
+        icon: '/favicon.svg',
+        badge: '/favicon.svg',
+        tag: 'morning-reminder',
+        requireInteraction: true,
+        vibrate: [200, 100, 200]
+      });
+    } else {
+      showNotification('Poranne przypomnienie', reminderText);
+    }
     // Reschedule for next day
     scheduleNotifications(settings, reminderText);
   }, morningTime.getTime() - now.getTime());
@@ -146,7 +182,19 @@ export const scheduleNotifications = (settings: NotificationSettings, reminderTe
   }
 
   const eveningTimeout = setTimeout(() => {
-    showNotification('Wieczorne przypomnienie', reminderText);
+    // Use Service Worker notification if available, fallback to regular notification
+    if (serviceWorkerRegistration && 'showNotification' in serviceWorkerRegistration) {
+      serviceWorkerRegistration.showNotification('Wieczorne przypomnienie', {
+        body: reminderText,
+        icon: '/favicon.svg',
+        badge: '/favicon.svg',
+        tag: 'evening-reminder',
+        requireInteraction: true,
+        vibrate: [200, 100, 200]
+      });
+    } else {
+      showNotification('Wieczorne przypomnienie', reminderText);
+    }
   }, eveningTime.getTime() - now.getTime());
 
   // Store timeout IDs for cleanup

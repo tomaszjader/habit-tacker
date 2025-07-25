@@ -20,6 +20,22 @@
   "dir": "ltr",
   "scope": "/",
   "permissions": [
-    "notifications"
+    "notifications",
+    "background-sync"
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "serviceworker": {
+    "src": "/sw.js",
+    "scope": "/",
+    "update_via_cache": "none"
+  },
+  "notification_preferences": {
+    "require_interaction": true,
+    "vibrate": true,
+    "sound": true
+  },
+  "background_sync": [
+    "schedule-notifications"
   ]
 }

@@ -12,7 +12,9 @@ import { updateSuccessCount, getHabitStatusForDate } from './utils/habitUtils';
 import {
   loadNotificationSettings,
   scheduleNotifications,
-  clearScheduledNotifications
+  clearScheduledNotifications,
+  registerServiceWorker,
+  requestNotificationPermission
 } from './utils/notifications';
 import { createConfetti, playSuccessSound } from './utils/celebrationEffects';
 import HabitList from './components/HabitList';
@@ -54,16 +56,51 @@ function AppContent() {
     }
   }, [statuses, isLoaded]);
 
-  // Initialize notifications on mount
+  // Initialize notifications and service worker on mount
   useEffect(() => {
-    const settings = loadNotificationSettings();
-    if (settings.enabled) {
-      scheduleNotifications(settings, t('notifications.morningReminder'));
-    }
+    const initializeNotifications = async () => {
+      // Register service worker first
+      await registerServiceWorker();
+      
+      const settings = loadNotificationSettings();
+      if (settings.enabled) {
+        // Request permission if not already granted
+        const hasPermission = await requestNotificationPermission();
+        if (hasPermission) {
+          scheduleNotifications(settings, t('notifications.morningReminder'));
+        }
+      }
+    };
+
+    initializeNotifications();
+
+    // Handle visibility change to reschedule notifications on mobile
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const settings = loadNotificationSettings();
+        if (settings.enabled) {
+          scheduleNotifications(settings, t('notifications.morningReminder'));
+        }
+      }
+    };
+
+    // Handle page focus to ensure notifications work on mobile
+    const handleFocus = () => {
+      const settings = loadNotificationSettings();
+      if (settings.enabled) {
+        scheduleNotifications(settings, t('notifications.morningReminder'));
+      }
+    };
+
+    // Add event listeners for mobile support
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
 
     // Cleanup on unmount
     return () => {
       clearScheduledNotifications();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
     };
   }, [t]);
 
