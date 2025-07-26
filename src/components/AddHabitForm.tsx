@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Habit } from '../types/habit';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface AddHabitFormProps {
   onAddHabit: (habit: Omit<Habit, 'id' | 'createdAt' | 'successCount'>) => void;
@@ -10,6 +11,7 @@ interface AddHabitFormProps {
 
 const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [name, setName] = useState('');
   const [validDays, setValidDays] = useState<number[]>([1, 2, 3, 4, 5]); // Weekdays by default
 
@@ -35,12 +37,20 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md">
+      <div className={`rounded-xl p-6 w-full max-w-md ${
+        theme === 'dark' ? 'bg-gray-800' : 'bg-white'
+      }`}>
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-gray-800">{t('habits.add')}</h2>
+          <h2 className={`text-xl font-bold ${
+            theme === 'dark' ? 'text-white' : 'text-gray-800'
+          }`}>{t('habits.add')}</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className={`${
+              theme === 'dark' 
+                ? 'text-gray-400 hover:text-gray-200' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
           >
             <X size={24} />
           </button>
@@ -48,7 +58,9 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="habitName" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="habitName" className={`block text-sm font-medium mb-2 ${
+              theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+            }`}>
               {t('habits.name')}
             </label>
             <input
@@ -57,13 +69,19 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('habits.name')}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                theme === 'dark' 
+                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              }`}
               autoFocus
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className={`block text-sm font-medium mb-3 ${
+              theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+            }`}>
               {t('habits.validDays')}
             </label>
             <div className="grid grid-cols-7 gap-2">
@@ -76,7 +94,9 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
                     py-2 px-1 text-sm font-medium rounded-lg transition-all duration-200 truncate
                     ${validDays.includes(index)
                       ? 'bg-blue-500 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      : theme === 'dark'
+                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }
                   `}
                   title={day}
@@ -85,7 +105,9 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
                 </button>
               ))}
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className={`text-xs mt-2 ${
+              theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+            }`}>
               {t('habits.selectDays')}
             </p>
           </div>
@@ -94,7 +116,11 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+              className={`flex-1 py-3 px-4 border rounded-lg font-medium ${
+                theme === 'dark'
+                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
             >
               {t('habits.cancel')}
             </button>

@@ -7,6 +7,7 @@ import HabitHistoryEditor from './HabitHistoryEditor';
 import StatusPicker from './StatusPicker';
 import { Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface HabitItemProps {
   habit: Habit;
@@ -17,6 +18,7 @@ interface HabitItemProps {
 
 const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, onDeleteHabit }) => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [showHistory, setShowHistory] = useState(false);
   const [showStatusPicker, setShowStatusPicker] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -57,17 +59,27 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <div className={`rounded-xl shadow-sm border p-4 ${
+        theme === 'dark' 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-100'
+      }`}>
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-800 text-lg truncate">
+            <h3 className={`font-semibold text-lg truncate ${
+              theme === 'dark' ? 'text-white' : 'text-gray-800'
+            }`}>
               {habit.name}
             </h3>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm text-gray-500">
+              <span className={`text-sm ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+              }`}>
                 {t('habits.streak')}: {habit.successCount}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className={`text-xs ${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+              }`}>
                 ({t('habits.bestStreak')}: {habit.bestStreak})
               </span>
               <div className="flex gap-1">
@@ -89,7 +101,11 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowHistory(true)}
-              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              className={`p-2 transition-colors ${
+                theme === 'dark' 
+                  ? 'text-gray-400 hover:text-gray-200' 
+                  : 'text-gray-400 hover:text-gray-600'
+              }`}
               title={t('habits.editHistory')}
             >
               <Settings size={18} />
@@ -103,8 +119,12 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
                 celebration-button w-16 h-16 rounded-full flex items-center justify-center text-2xl
                 transition-all duration-200 active:scale-95
                 ${isValidToday 
-                  ? 'bg-gray-50 hover:bg-gray-100 border-2 border-gray-200' 
-                  : 'bg-gray-100 cursor-not-allowed'
+                  ? theme === 'dark'
+                    ? 'bg-gray-700 hover:bg-gray-600 border-2 border-gray-600'
+                    : 'bg-gray-50 hover:bg-gray-100 border-2 border-gray-200'
+                  : theme === 'dark'
+                    ? 'bg-gray-700 cursor-not-allowed'
+                    : 'bg-gray-100 cursor-not-allowed'
                 }
               `}
               title={isValidToday ? t('habits.clickToSelect') : t('habits.notApplicableToday')}
@@ -116,8 +136,14 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
         
         {/* Status Picker Dropdown */}
         {showStatusPicker && isValidToday && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">{t('habits.selectStatus')}</h4>
+          <div className={`mt-4 p-4 rounded-lg border ${
+            theme === 'dark' 
+              ? 'bg-gray-700 border-gray-600' 
+              : 'bg-gray-50 border-gray-200'
+          }`}>
+            <h4 className={`text-sm font-medium mb-3 ${
+              theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+            }`}>{t('habits.selectStatus')}</h4>
             <StatusPicker
               currentStatus={currentStatus}
               onStatusChange={handleStatusChange}
