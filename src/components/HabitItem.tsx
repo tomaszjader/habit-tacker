@@ -14,9 +14,10 @@ interface HabitItemProps {
   statuses: HabitStatus[];
   onStatusChange: (habitId: string, date: string, status: StatusType) => void;
   onDeleteHabit: (habitId: string) => void;
+  onUpdateHabit: (habitId: string, updates: Partial<Habit>) => void;
 }
 
-const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, onDeleteHabit }) => {
+const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, onDeleteHabit, onUpdateHabit }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const [showHistory, setShowHistory] = useState(false);
@@ -160,6 +161,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
           onStatusChange={handleHistoryStatusChange}
           onDeleteHabit={onDeleteHabit}
           onClose={() => setShowHistory(false)}
+          onUpdateHabit={onUpdateHabit}
         />
       )}
     </>

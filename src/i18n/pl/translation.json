@@ -23,6 +23,11 @@
     "deleted": "Nawyk został usunięty",
     "noHabitsYet": "Brak nawyków",
     "addFirstHabit": "Dodaj swój pierwszy nawyk, aby rozpocząć!",
+    "emergencyHabit": "Nawyk awaryjny",
+    "emergencyHabitDescription": "Łatwiejsza wersja nawyku na trudne dni (np. '3 słowa zamiast 10')",
+    "emergencyHabitPlaceholder": "Wpisz łatwiejszą wersję nawyku...",
+    "emergencyHabitSaved": "Nawyk awaryjny zapisany",
+    "edit": "Edytuj",
     "status": {
       "completed": "Ukończone",
       "partial": "Częściowo",

@@ -122,6 +122,12 @@ function AppContent() {
     setStatuses(prev => prev.filter(s => s.habitId !== habitId));
   };
 
+  const updateHabit = (habitId: string, updates: Partial<Habit>) => {
+    setHabits(prev => prev.map(h => 
+      h.id === habitId ? { ...h, ...updates } : h
+    ));
+  };
+
   const handleStatusChange = (habitId: string, date: string, newStatus: StatusType) => {
     const habit = habits.find(h => h.id === habitId);
     if (!habit) return;
@@ -246,6 +252,7 @@ function AppContent() {
           statuses={statuses}
           onStatusChange={handleStatusChange}
           onDeleteHabit={deleteHabit}
+          onUpdateHabit={updateHabit}
           className={theme === 'dark' ? 'bg-gray-800 text-white' : ''}
         />
       </div>

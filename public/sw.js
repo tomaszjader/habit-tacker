@@ -2,7 +2,7 @@
 const CACHE_NAME = 'habit-tracker-v1';
 const NOTIFICATION_SETTINGS_KEY = 'habit-tracker-notifications';
 const DB_NAME = 'HabitTrackerDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 // Store notification settings and scheduled alarms
 let notificationSettings = {
@@ -23,9 +23,10 @@ function openDB() {
     
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
-      if (!db.objectStoreNames.contains('settings')) {
-        db.createObjectStore('settings', { keyPath: 'key' });
+      if (db.objectStoreNames.contains('settings')) {
+        db.deleteObjectStore('settings');
       }
+      db.createObjectStore('settings');
     };
   });
 }
@@ -35,9 +36,15 @@ async function saveSettingsToDB(settings) {
     const db = await openDB();
     const transaction = db.transaction(['settings'], 'readwrite');
     const store = transaction.objectStore('settings');
-    await store.put({ key: 'notifications', value: settings });
+    
+    return new Promise((resolve, reject) => {
+      const request = store.put({ value: settings }, 'notifications');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
   } catch (error) {
     console.error('Error saving settings to IndexedDB:', error);
+    throw error;
   }
 }
 
@@ -46,8 +53,15 @@ async function loadSettingsFromDB() {
     const db = await openDB();
     const transaction = db.transaction(['settings'], 'readonly');
     const store = transaction.objectStore('settings');
-    const result = await store.get('notifications');
-    return result ? result.value : notificationSettings;
+    
+    return new Promise((resolve, reject) => {
+      const request = store.get('notifications');
+      request.onsuccess = () => {
+        const result = request.result;
+        resolve(result ? result.value : notificationSettings);
+      };
+      request.onerror = () => reject(request.error);
+    });
   } catch (error) {
     console.error('Error loading settings from IndexedDB:', error);
     return notificationSettings;
@@ -73,10 +87,10 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     Promise.all([
       self.clients.claim(),
-      loadSettingsFromDB().then(settings => {
+      loadSettingsFromDB().then(async settings => {
         notificationSettings = settings;
         if (settings.enabled) {
-          scheduleNotificationsWithSettings(settings);
+          await scheduleNotificationsWithSettings(settings);
         }
       })
     ])
@@ -154,7 +168,7 @@ function clearAllAlarms() {
 }
 
 // Schedule notifications with enhanced mobile support
-function scheduleNotificationsWithSettings(settings) {
+async function scheduleNotificationsWithSettings(settings) {
   if (!settings.enabled) {
     clearAllAlarms();
     return;
@@ -162,7 +176,11 @@ function scheduleNotificationsWithSettings(settings) {
 
   // Store settings for later use
   notificationSettings = settings;
-  saveSettingsToDB(settings);
+  try {
+    await saveSettingsToDB(settings);
+  } catch (error) {
+    console.error('Failed to save settings to IndexedDB:', error);
+  }
 
   // Clear existing alarms
   clearAllAlarms();
@@ -226,17 +244,22 @@ function scheduleNotificationsForDate(date, settings) {
 }
 
 // Message handling from main thread
-self.addEventListener('message', (event) => {
+self.addEventListener('message', async (event) => {
   if (event.data && event.data.type === 'SCHEDULE_NOTIFICATIONS') {
     const settings = event.data.settings;
-    scheduleNotificationsWithSettings(settings);
+    await scheduleNotificationsWithSettings(settings);
   }
   
   if (event.data && event.data.type === 'UPDATE_SETTINGS') {
     notificationSettings = event.data.settings;
-    saveSettingsToDB(event.data.settings);
+    try {
+      await saveSettingsToDB(event.data.settings);
+    } catch (error) {
+      console.error('Failed to save settings to IndexedDB:', error);
+    }
+    
     if (event.data.settings.enabled) {
-      scheduleNotificationsWithSettings(event.data.settings);
+      await scheduleNotificationsWithSettings(event.data.settings);
     } else {
       clearAllAlarms();
     }
@@ -251,9 +274,9 @@ self.addEventListener('message', (event) => {
 self.addEventListener('sync', (event) => {
   if (event.tag === 'schedule-notifications') {
     event.waitUntil(
-      loadSettingsFromDB().then(settings => {
+      loadSettingsFromDB().then(async settings => {
         if (settings.enabled) {
-          scheduleNotificationsWithSettings(settings);
+          await scheduleNotificationsWithSettings(settings);
         }
       })
     );
@@ -264,9 +287,9 @@ self.addEventListener('sync', (event) => {
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'habit-notifications') {
     event.waitUntil(
-      loadSettingsFromDB().then(settings => {
+      loadSettingsFromDB().then(async settings => {
         if (settings.enabled) {
-          scheduleNotificationsWithSettings(settings);
+          await scheduleNotificationsWithSettings(settings);
         }
       })
     );
@@ -276,9 +299,9 @@ self.addEventListener('periodicsync', (event) => {
 // Handle visibility change to reschedule notifications
 self.addEventListener('visibilitychange', (event) => {
   if (document.visibilityState === 'visible') {
-    loadSettingsFromDB().then(settings => {
+    loadSettingsFromDB().then(async settings => {
       if (settings.enabled) {
-        scheduleNotificationsWithSettings(settings);
+        await scheduleNotificationsWithSettings(settings);
       }
     });
   }
@@ -286,9 +309,9 @@ self.addEventListener('visibilitychange', (event) => {
 
 // Handle page focus to ensure notifications are scheduled
 self.addEventListener('focus', (event) => {
-  loadSettingsFromDB().then(settings => {
+  loadSettingsFromDB().then(async settings => {
     if (settings.enabled) {
-      scheduleNotificationsWithSettings(settings);
+      await scheduleNotificationsWithSettings(settings);
     }
   });
 });

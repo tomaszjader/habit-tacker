@@ -13,11 +13,15 @@ interface HabitHistoryEditorProps {
   onStatusChange: (date: string, status: StatusType) => void;
   onDeleteHabit: (habitId: string) => void;
   onClose: () => void;
+  onUpdateHabit: (habitId: string, updates: Partial<Habit>) => void;
 }
 
-const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses, onStatusChange, onDeleteHabit, onClose }) => {
+const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses, onStatusChange, onDeleteHabit, onClose, onUpdateHabit }) => {
   const { t } = useTranslation();
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [emergencyHabitText, setEmergencyHabitText] = useState(habit.emergencyHabitText || '');
+  const [isEditingEmergencyHabit, setIsEditingEmergencyHabit] = useState(!habit.emergencyHabitText);
   
   const dates = [0, 1, 2, 3].map(daysAgo => ({
     daysAgo,
@@ -29,12 +33,25 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
   const handleDeleteHabit = () => {
     if (window.confirm(t('habits.deleteConfirm'))) {
       onDeleteHabit(habit.id);
+      setToastMessage(t('habits.deleted'));
       setShowToast(true);
       // Zamknij modal po krótkim opóźnieniu, aby użytkownik zobaczył toast
       setTimeout(() => {
         onClose();
       }, 500);
     }
+  };
+
+  const handleEmergencyHabitSave = () => {
+    const updates = { emergencyHabitText: emergencyHabitText.trim() || undefined };
+    onUpdateHabit(habit.id, updates);
+    setIsEditingEmergencyHabit(false);
+    setToastMessage(t('habits.emergencyHabitSaved'));
+    setShowToast(true);
+  };
+
+  const handleEditEmergencyHabit = () => {
+    setIsEditingEmergencyHabit(true);
   };
 
   return (
@@ -80,6 +97,67 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
             <span className="font-bold text-lg text-green-600">{habit.successCount}</span>
           </div>
           
+          {/* Emergency Habit Settings */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t('habits.emergencyHabit')}
+            </label>
+            <p className="text-xs text-gray-500 mb-3">
+              {t('habits.emergencyHabitDescription')}
+            </p>
+            
+            {isEditingEmergencyHabit ? (
+              <div className="space-y-3">
+                <textarea
+                  value={emergencyHabitText}
+                  onChange={(e) => setEmergencyHabitText(e.target.value)}
+                  placeholder={t('habits.emergencyHabitPlaceholder')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  rows={2}
+                />
+                <button
+                  onClick={handleEmergencyHabitSave}
+                  className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"
+                >
+                  {t('habits.save')}
+                </button>
+              </div>
+            ) : habit.emergencyHabitText ? (
+              <div className="space-y-3">
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-xs text-green-600 font-medium mb-1">
+                    {t('habits.emergencyHabit')}:
+                  </p>
+                  <p className="text-sm text-green-700">
+                    {habit.emergencyHabitText}
+                  </p>
+                </div>
+                <button
+                  onClick={handleEditEmergencyHabit}
+                  className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+                >
+                  {t('habits.edit')}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <textarea
+                  value={emergencyHabitText}
+                  onChange={(e) => setEmergencyHabitText(e.target.value)}
+                  placeholder={t('habits.emergencyHabitPlaceholder')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  rows={2}
+                />
+                <button
+                  onClick={handleEmergencyHabitSave}
+                  className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"
+                >
+                  {t('habits.save')}
+                </button>
+              </div>
+            )}
+          </div>
+          
           {/* Delete Button */}
           <button
             onClick={handleDeleteHabit}
@@ -94,7 +172,7 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
       {/* Toast */}
       {showToast && (
         <Toast
-          message={t('habits.deleted')}
+          message={toastMessage}
           type="success"
           onClose={() => setShowToast(false)}
         />

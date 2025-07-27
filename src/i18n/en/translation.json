@@ -23,6 +23,11 @@
     "deleted": "Habit has been deleted",
     "noHabitsYet": "No habits yet",
     "addFirstHabit": "Add your first habit to get started!",
+    "emergencyHabit": "Emergency habit",
+    "emergencyHabitDescription": "Easier version of the habit for difficult days (e.g. '3 words instead of 10')",
+    "emergencyHabitPlaceholder": "Enter easier version of the habit...",
+    "emergencyHabitSaved": "Emergency habit saved",
+    "edit": "Edit",
     "status": {
       "completed": "Completed",
       "partial": "Partial",
