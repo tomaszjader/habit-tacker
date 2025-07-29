@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Habit, HabitStatus, StatusType } from '../types/habit';
 import HabitItem from './HabitItem';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +24,12 @@ const HabitList: React.FC<HabitListProps> = ({
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   
+  // Touch events state
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
+  const [touchCurrentY, setTouchCurrentY] = useState<number | null>(null);
+  const [isTouchDragging, setIsTouchDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
   if (habits.length === 0) {
     return (
       <div className="text-center py-12">
@@ -34,6 +40,7 @@ const HabitList: React.FC<HabitListProps> = ({
     );
   }
 
+  // Desktop drag & drop handlers
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index);
     e.dataTransfer.effectAllowed = 'move';
@@ -90,8 +97,78 @@ const HabitList: React.FC<HabitListProps> = ({
     setDragOverIndex(null);
   };
 
+  // Touch handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent, index: number) => {
+    const touch = e.touches[0];
+    setTouchStartY(touch.clientY);
+    setTouchCurrentY(touch.clientY);
+    setDraggedIndex(index);
+    setIsTouchDragging(false);
+    
+    // Prevent scrolling while potentially dragging
+    e.preventDefault();
+  };
+
+  const handleTouchMove = (e: React.TouchEvent, index: number) => {
+    if (touchStartY === null || draggedIndex === null) return;
+    
+    const touch = e.touches[0];
+    const currentY = touch.clientY;
+    setTouchCurrentY(currentY);
+    
+    const deltaY = Math.abs(currentY - touchStartY);
+    
+    // Start dragging if moved more than 10px
+    if (deltaY > 10 && !isTouchDragging) {
+      setIsTouchDragging(true);
+      // Add visual feedback
+      const element = e.currentTarget as HTMLElement;
+      element.style.opacity = '0.5';
+      element.style.transform = 'scale(0.95) rotate(2deg)';
+    }
+    
+    if (isTouchDragging) {
+      // Prevent scrolling
+      e.preventDefault();
+      
+      // Calculate which item we're over
+      if (containerRef.current) {
+        const container = containerRef.current;
+        const items = Array.from(container.children) as HTMLElement[];
+        
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+          const rect = item.getBoundingClientRect();
+          
+          if (currentY >= rect.top && currentY <= rect.bottom && i !== draggedIndex) {
+            setDragOverIndex(i);
+            break;
+          }
+        }
+      }
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent, index: number) => {
+    if (isTouchDragging && draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+      onReorderHabits(draggedIndex, dragOverIndex);
+    }
+    
+    // Reset visual feedback
+    const element = e.currentTarget as HTMLElement;
+    element.style.opacity = '1';
+    element.style.transform = '';
+    
+    // Reset state
+    setTouchStartY(null);
+    setTouchCurrentY(null);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+    setIsTouchDragging(false);
+  };
+
   return (
-    <div className="space-y-3">
+    <div ref={containerRef} className="space-y-3">
       {habits.map((habit, index) => (
         <div
           key={habit.id}
@@ -101,8 +178,11 @@ const HabitList: React.FC<HabitListProps> = ({
           onDragLeave={handleDragLeave}
           onDrop={(e) => handleDrop(e, index)}
           onDragEnd={handleDragEnd}
+          onTouchStart={(e) => handleTouchStart(e, index)}
+          onTouchMove={(e) => handleTouchMove(e, index)}
+          onTouchEnd={(e) => handleTouchEnd(e, index)}
           className={`
-            transition-all duration-200 cursor-move
+            transition-all duration-200 cursor-move touch-none
             ${draggedIndex === index ? 'opacity-50 scale-95 rotate-2' : ''}
             ${dragOverIndex === index && draggedIndex !== index ? 'transform scale-105 shadow-lg border-2 border-blue-400' : ''}
           `}
