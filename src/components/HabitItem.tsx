@@ -60,44 +60,46 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
 
   return (
     <>
-      <div className={`rounded-xl shadow-sm border p-4 ${
+      <div className={`rounded-xl shadow-sm border p-3 sm:p-4 ${
         theme === 'dark' 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'
       }`}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <div className={`p-1 cursor-grab active:cursor-grabbing ${
               theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
             }`} title={t('habits.dragToReorder')}>
-              <GripVertical size={16} />
+              <GripVertical size={14} className="sm:w-4 sm:h-4" />
             </div>
             
             <div className="flex-1 min-w-0">
-              <h3 className={`font-semibold text-lg leading-tight break-words line-clamp-2 ${
+              <h3 className={`font-semibold text-base sm:text-lg leading-tight break-words ${
                 theme === 'dark' ? 'text-white' : 'text-gray-800'
               }`}>
                 {habit.name}
               </h3>
-              <div className="flex items-center gap-2 mt-1">
-                <span className={`text-sm ${
-                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
-                }`}>
-                  {t('habits.streak')}: {habit.successCount}
-                </span>
-                <span className={`text-xs ${
-                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-                }`}>
-                  ({t('habits.bestStreak')}: {habit.bestStreak})
-                </span>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs sm:text-sm ${
+                    theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                  }`}>
+                    {t('habits.streak')}: {habit.successCount}
+                  </span>
+                  <span className={`text-xs ${
+                    theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                  }`}>
+                    ({t('habits.bestStreak')}: {habit.bestStreak})
+                  </span>
+                </div>
                 <div className="flex gap-1">
                   {[0, 1, 2, 3, 4, 5, 6].map(day => (
                     <div
                       key={day}
-                      className={`w-2 h-2 rounded-full ${
+                      className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
                         habit.validDays.includes(day) 
                           ? 'bg-blue-400' 
-                          : 'bg-gray-200'
+                          : theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'
                       }`}
                       title={t(`habits.days.${day}`)}
                     />
@@ -107,17 +109,17 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => setShowHistory(true)}
-              className={`p-2 transition-colors ${
+              className={`p-1.5 sm:p-2 transition-colors ${
                 theme === 'dark' 
                   ? 'text-gray-400 hover:text-gray-200' 
                   : 'text-gray-400 hover:text-gray-600'
               }`}
               title={t('habits.editHistory')}
             >
-              <Settings size={18} />
+              <Settings size={16} className="sm:w-[18px] sm:h-[18px]" />
             </button>
             
             <button
@@ -125,7 +127,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
               onClick={toggleStatusPicker}
               disabled={!isValidToday}
               className={`
-                celebration-button w-16 h-16 rounded-full flex items-center justify-center text-2xl
+                celebration-button w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl
                 transition-all duration-200 active:scale-95
                 ${isValidToday 
                   ? theme === 'dark'

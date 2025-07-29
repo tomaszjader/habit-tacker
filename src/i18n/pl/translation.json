@@ -29,6 +29,10 @@
     "emergencyHabitSaved": "Nawyk awaryjny zapisany",
     "edit": "Edytuj",
     "dragToReorder": "Przeciągnij aby zmienić kolejność",
+    "lockOrder": "Zablokuj kolejność",
+    "unlockOrder": "Odblokuj kolejność",
+    "orderLocked": "Kolejność zablokowana",
+    "orderUnlocked": "Kolejność odblokowana",
     "status": {
       "completed": "Ukończone",
       "partial": "Częściowo",
@@ -67,5 +71,13 @@
   "theme": {
     "light": "Jasny",
     "dark": "Ciemny"
+  },
+  "menu": {
+    "title": "Menu",
+    "addHabit": "Dodaj nawyk",
+    "notifications": "Powiadomienia",
+    "theme": "Zmień motyw",
+    "language": "Zmień język",
+    "dragLock": "Blokada kolejności"
   }
 }

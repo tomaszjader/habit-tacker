@@ -29,6 +29,10 @@
     "emergencyHabitSaved": "Emergency habit saved",
     "edit": "Edit",
     "dragToReorder": "Drag to reorder",
+    "lockOrder": "Lock order",
+    "unlockOrder": "Unlock order",
+    "orderLocked": "Order locked",
+    "orderUnlocked": "Order unlocked",
     "status": {
       "completed": "Completed",
       "partial": "Partial",
@@ -67,5 +71,13 @@
   "theme": {
     "light": "Light",
     "dark": "Dark"
+  },
+  "menu": {
+    "title": "Menu",
+    "addHabit": "Add habit",
+    "notifications": "Notifications",
+    "theme": "Change theme",
+    "language": "Change language",
+    "dragLock": "Order lock"
   }
 }

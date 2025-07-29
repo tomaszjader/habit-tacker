@@ -10,6 +10,7 @@ interface HabitListProps {
   onDeleteHabit: (habitId: string) => void;
   onUpdateHabit: (habitId: string, updates: Partial<Habit>) => void;
   onReorderHabits: (startIndex: number, endIndex: number) => void;
+  isDragLocked?: boolean;
 }
 
 const HabitList: React.FC<HabitListProps> = ({ 
@@ -18,7 +19,8 @@ const HabitList: React.FC<HabitListProps> = ({
   onStatusChange, 
   onDeleteHabit, 
   onUpdateHabit, 
-  onReorderHabits 
+  onReorderHabits,
+  isDragLocked = false
 }) => {
   const { t } = useTranslation();
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -42,6 +44,11 @@ const HabitList: React.FC<HabitListProps> = ({
 
   // Desktop drag & drop handlers
   const handleDragStart = (e: React.DragEvent, index: number) => {
+    if (isDragLocked) {
+      e.preventDefault();
+      return;
+    }
+    
     setDraggedIndex(index);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', '');
@@ -99,6 +106,10 @@ const HabitList: React.FC<HabitListProps> = ({
 
   // Touch handlers for mobile
   const handleTouchStart = (e: React.TouchEvent, index: number) => {
+    if (isDragLocked) {
+      return;
+    }
+    
     const touch = e.touches[0];
     setTouchStartY(touch.clientY);
     setTouchCurrentY(touch.clientY);
@@ -168,11 +179,11 @@ const HabitList: React.FC<HabitListProps> = ({
   };
 
   return (
-    <div ref={containerRef} className="space-y-3">
+    <div ref={containerRef} className="space-y-2 sm:space-y-3">
       {habits.map((habit, index) => (
         <div
           key={habit.id}
-          draggable
+          draggable={!isDragLocked}
           onDragStart={(e) => handleDragStart(e, index)}
           onDragOver={(e) => handleDragOver(e, index)}
           onDragLeave={handleDragLeave}
@@ -182,7 +193,8 @@ const HabitList: React.FC<HabitListProps> = ({
           onTouchMove={(e) => handleTouchMove(e, index)}
           onTouchEnd={(e) => handleTouchEnd(e, index)}
           className={`
-            transition-all duration-200 cursor-move touch-none
+            transition-all duration-200 touch-none
+            ${isDragLocked ? 'cursor-default' : 'cursor-move'}
             ${draggedIndex === index ? 'opacity-50 scale-95 rotate-2' : ''}
             ${dragOverIndex === index && draggedIndex !== index ? 'transform scale-105 shadow-lg border-2 border-blue-400' : ''}
           `}
