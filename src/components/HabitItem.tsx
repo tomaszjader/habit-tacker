@@ -74,7 +74,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
             </div>
             
             <div className="flex-1 min-w-0">
-              <h3 className={`font-semibold text-lg truncate ${
+              <h3 className={`font-semibold text-lg leading-tight break-words line-clamp-2 ${
                 theme === 'dark' ? 'text-white' : 'text-gray-800'
               }`}>
                 {habit.name}
