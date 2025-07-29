@@ -104,13 +104,14 @@ function AppContent() {
     };
   }, [t]);
 
-  const addHabit = (habitData: Omit<Habit, 'id' | 'createdAt' | 'successCount' | 'bestStreak'>) => {
+  const addHabit = (habitData: Omit<Habit, 'id' | 'createdAt' | 'successCount' | 'bestStreak' | 'order'>) => {
     const newHabit: Habit = {
       ...habitData,
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
       successCount: 0,
-      bestStreak: 0
+      bestStreak: 0,
+      order: habits.length // Nowy nawyk na końcu listy
     };
     setHabits(prev => [...prev, newHabit]);
   };
@@ -126,6 +127,20 @@ function AppContent() {
     setHabits(prev => prev.map(h => 
       h.id === habitId ? { ...h, ...updates } : h
     ));
+  };
+
+  const reorderHabits = (startIndex: number, endIndex: number) => {
+    setHabits(prev => {
+      const result = Array.from(prev);
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+      
+      // Aktualizuj order dla wszystkich nawyków
+      return result.map((habit, index) => ({
+        ...habit,
+        order: index
+      }));
+    });
   };
 
   const handleStatusChange = (habitId: string, date: string, newStatus: StatusType) => {
@@ -253,6 +268,7 @@ function AppContent() {
           onStatusChange={handleStatusChange}
           onDeleteHabit={deleteHabit}
           onUpdateHabit={updateHabit}
+          onReorderHabits={reorderHabits}
           className={theme === 'dark' ? 'bg-gray-800 text-white' : ''}
         />
       </div>

@@ -28,6 +28,7 @@
     "emergencyHabitPlaceholder": "Wpisz łatwiejszą wersję nawyku...",
     "emergencyHabitSaved": "Nawyk awaryjny zapisany",
     "edit": "Edytuj",
+    "dragToReorder": "Przeciągnij aby zmienić kolejność",
     "status": {
       "completed": "Ukończone",
       "partial": "Częściowo",

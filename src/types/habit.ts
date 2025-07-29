@@ -6,6 +6,7 @@ export interface Habit {
   successCount: number;
   bestStreak: number; // Największa seria sukcesów
   emergencyHabitText?: string; // Tekst nawyku awaryjnego (np. łatwiejsza wersja)
+  order: number; // Kolejność wyświetlania nawyku
 }
 
 export interface HabitStatus {

@@ -9,11 +9,15 @@ export const loadHabits = (): Habit[] => {
     if (!stored) return [];
     
     const habits = JSON.parse(stored);
-    // Migracja: dodaj bestStreak dla istniejących nawyków
-    return habits.map((habit: any) => ({
+    // Migracja: dodaj bestStreak i order dla istniejących nawyków
+    const migratedHabits = habits.map((habit: any, index: number) => ({
       ...habit,
-      bestStreak: habit.bestStreak ?? habit.successCount ?? 0
+      bestStreak: habit.bestStreak ?? habit.successCount ?? 0,
+      order: habit.order ?? index
     }));
+    
+    // Sortuj nawyki według kolejności
+    return migratedHabits.sort((a: Habit, b: Habit) => a.order - b.order);
   } catch {
     return [];
   }

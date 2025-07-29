@@ -28,6 +28,7 @@
     "emergencyHabitPlaceholder": "Enter easier version of the habit...",
     "emergencyHabitSaved": "Emergency habit saved",
     "edit": "Edit",
+    "dragToReorder": "Drag to reorder",
     "status": {
       "completed": "Completed",
       "partial": "Partial",

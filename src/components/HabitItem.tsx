@@ -5,7 +5,7 @@ import { getHabitStatusForDate, getStatusDisplay } from '../utils/habitUtils';
 import { triggerCelebration, celebrateStreak } from '../utils/celebrationEffects';
 import HabitHistoryEditor from './HabitHistoryEditor';
 import StatusPicker from './StatusPicker';
-import { Settings } from 'lucide-react';
+import { Settings, GripVertical } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -66,35 +66,43 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
           : 'bg-white border-gray-100'
       }`}>
         <div className="flex items-center justify-between">
-          <div className="flex-1 min-w-0">
-            <h3 className={`font-semibold text-lg truncate ${
-              theme === 'dark' ? 'text-white' : 'text-gray-800'
-            }`}>
-              {habit.name}
-            </h3>
-            <div className="flex items-center gap-2 mt-1">
-              <span className={`text-sm ${
-                theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className={`p-1 cursor-grab active:cursor-grabbing ${
+              theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+            }`} title={t('habits.dragToReorder')}>
+              <GripVertical size={16} />
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <h3 className={`font-semibold text-lg truncate ${
+                theme === 'dark' ? 'text-white' : 'text-gray-800'
               }`}>
-                {t('habits.streak')}: {habit.successCount}
-              </span>
-              <span className={`text-xs ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-              }`}>
-                ({t('habits.bestStreak')}: {habit.bestStreak})
-              </span>
-              <div className="flex gap-1">
-                {[0, 1, 2, 3, 4, 5, 6].map(day => (
-                  <div
-                    key={day}
-                    className={`w-2 h-2 rounded-full ${
-                      habit.validDays.includes(day) 
-                        ? 'bg-blue-400' 
-                        : 'bg-gray-200'
-                    }`}
-                    title={t(`habits.days.${day}`)}
-                  />
-                ))}
+                {habit.name}
+              </h3>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={`text-sm ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
+                  {t('habits.streak')}: {habit.successCount}
+                </span>
+                <span className={`text-xs ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                }`}>
+                  ({t('habits.bestStreak')}: {habit.bestStreak})
+                </span>
+                <div className="flex gap-1">
+                  {[0, 1, 2, 3, 4, 5, 6].map(day => (
+                    <div
+                      key={day}
+                      className={`w-2 h-2 rounded-full ${
+                        habit.validDays.includes(day) 
+                          ? 'bg-blue-400' 
+                          : 'bg-gray-200'
+                      }`}
+                      title={t(`habits.days.${day}`)}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
