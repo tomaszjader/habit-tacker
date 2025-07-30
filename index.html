@@ -8,7 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     
     <!-- Theme colors for different modes -->
-    <meta name="theme-color" content="#111827" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
     
@@ -33,6 +32,10 @@
     <meta name="mobile-web-app-splash-screen" content="no" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-status-bar-style" content="black-translucent" />
+    
+    <!-- Android 12+ Splash Screen API control -->
+    <meta name="android-splash-screen-duration" content="0" />
+    <meta name="android-splash-screen-fade-out-duration" content="0" />
     
     <!-- PWA meta tags -->
     <meta name="description" content="Track your daily habits and build better routines" />
@@ -92,10 +95,46 @@
       input, select, textarea {
         font-size: 16px !important;
       }
+      
+      /* Fast splash screen to override system one */
+      .fast-splash {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #111827;
+        z-index: 10000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.1s ease;
+      }
+      
+      .fast-splash.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
      </style>
    </head>
    <body>
+     <div class="fast-splash" id="fast-splash"></div>
      <div id="root"></div>
+     
+     <script>
+       // Hide fast splash screen immediately when DOM is ready
+       document.addEventListener('DOMContentLoaded', function() {
+         setTimeout(function() {
+           const splash = document.getElementById('fast-splash');
+           if (splash) {
+             splash.classList.add('hidden');
+             setTimeout(function() {
+               splash.remove();
+             }, 100);
+           }
+         }, 50); // Very short delay
+       });
+     </script>
      
      <script type="module" src="/src/main.tsx"></script>
    </body>
