@@ -10,14 +10,7 @@ async function convertSvgToPng(svgPath, outputPath, size) {
   try {
     const svgBuffer = fs.readFileSync(svgPath);
     await sharp(svgBuffer)
-      .resize(Math.round(size * 0.8), Math.round(size * 0.8))
-      .extend({
-        top: Math.round(size * 0.1),
-        bottom: Math.round(size * 0.1),
-        left: Math.round(size * 0.1),
-        right: Math.round(size * 0.1),
-        background: { r: 255, g: 255, b: 255, alpha: 1 }
-      })
+      .resize(size, size)
       .png()
       .toFile(outputPath);
     console.log(`Converted ${svgPath} to ${outputPath}`);
@@ -28,20 +21,14 @@ async function convertSvgToPng(svgPath, outputPath, size) {
 
 async function main() {
   const publicDir = path.join(__dirname, 'public');
+  const faviconPath = path.join(publicDir, 'favicon.svg');
   
-  // Konwertuj ikony w różnych rozmiarach
+  // Generuj ikony PNG z favicon.svg
   const sizes = [192, 512];
-  const icons = [
-    { src: path.join(publicDir, 'favicon.svg'), name: 'icon' },
-    { src: path.join(publicDir, 'icon-192x192.svg'), name: 'icon-192x192' },
-    { src: path.join(publicDir, 'icon-512x512.svg'), name: 'icon-512x512' }
-  ];
-
-  for (const icon of icons) {
-    for (const size of sizes) {
-      const outputPath = path.join(publicDir, `${icon.name}-${size}.png`);
-      await convertSvgToPng(icon.src, outputPath, size);
-    }
+  
+  for (const size of sizes) {
+    const outputPath = path.join(publicDir, `icon-${size}.png`);
+    await convertSvgToPng(faviconPath, outputPath, size);
   }
 }
 
