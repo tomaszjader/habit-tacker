@@ -96,45 +96,11 @@
         font-size: 16px !important;
       }
       
-      /* Fast splash screen to override system one */
-      .fast-splash {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #111827;
-        z-index: 10000;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: opacity 0.1s ease;
-      }
-      
-      .fast-splash.hidden {
-        opacity: 0;
-        pointer-events: none;
-      }
+
      </style>
    </head>
    <body>
-     <div class="fast-splash" id="fast-splash"></div>
      <div id="root"></div>
-     
-     <script>
-       // Hide fast splash screen immediately when DOM is ready
-       document.addEventListener('DOMContentLoaded', function() {
-         setTimeout(function() {
-           const splash = document.getElementById('fast-splash');
-           if (splash) {
-             splash.classList.add('hidden');
-             setTimeout(function() {
-               splash.remove();
-             }, 100);
-           }
-         }, 50); // Very short delay
-       });
-     </script>
      
      <script type="module" src="/src/main.tsx"></script>
    </body>
