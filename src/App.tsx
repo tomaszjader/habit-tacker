@@ -271,7 +271,7 @@ function AppContent() {
         <div className="max-w-md mx-auto px-3 sm:px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              <Logo size={32} className="sm:w-10 sm:h-10" />
+              <Logo size={36} className="w-9 h-9 sm:w-10 sm:h-10" />
               <div className="min-w-0 flex-1">
                 <h1 className={`text-lg sm:text-xl font-bold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{t('habits.title')}</h1>
                 <p className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>

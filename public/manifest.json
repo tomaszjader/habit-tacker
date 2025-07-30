@@ -4,7 +4,7 @@
   "description": "Track your daily habits and build better routines",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#111827",
   "theme_color": "#3b82f6",
   "orientation": "portrait-primary",
   "icons": [
