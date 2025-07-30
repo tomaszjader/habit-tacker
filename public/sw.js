@@ -1,17 +1,19 @@
-// Enhanced Service Worker for PWA on Android
-const CACHE_NAME = 'habit-tracker-v3'; // Zwiększam wersję cache
+// Enhanced Service Worker for PWA on Android with splash screen support
+const CACHE_NAME = 'habit-tracker-v4'; // Zwiększam wersję cache
 const NOTIFICATION_SETTINGS_KEY = 'habit-tracker-notifications';
 const DB_NAME = 'HabitTrackerDB';
 const DB_VERSION = 2;
 
-// Assets to cache for offline support
+// Assets to cache for offline support including splash screen assets
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/favicon.svg',
   '/icon-192.png',
-  '/icon-512.png'
+  '/icon-512.png',
+  '/icon-192x192-192.png',
+  '/icon-512x512-512.png'
 ];
 
 // Store notification settings and scheduled alarms
