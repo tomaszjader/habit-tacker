@@ -11,14 +11,32 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
+    // Sprawdź localStorage
     const savedTheme = localStorage.getItem('theme');
-    return (savedTheme as Theme) || 'light';
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      return savedTheme as Theme;
+    }
+    
+    // Sprawdź preferencje systemowe
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    
+    // Domyślnie tryb ciemny dla PWA
+    return 'dark';
   });
 
   useEffect(() => {
+    // Usuń wszystkie klasy motywu
     document.documentElement.classList.remove('light', 'dark');
+    // Dodaj aktualny motyw
     document.documentElement.classList.add(theme);
+    // Zapisz w localStorage
     localStorage.setItem('theme', theme);
+    
+    // Dodatkowe ustawienia dla PWA
+    document.body.style.backgroundColor = theme === 'dark' ? '#111827' : '#ffffff';
+    document.body.style.color = theme === 'dark' ? '#f9fafb' : '#111827';
   }, [theme]);
 
   const toggleTheme = () => {

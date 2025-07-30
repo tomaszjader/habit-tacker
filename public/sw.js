@@ -1,5 +1,5 @@
 // Service Worker for background notifications
-const CACHE_NAME = 'habit-tracker-v1';
+const CACHE_NAME = 'habit-tracker-v2'; // Zwiększam wersję cache
 const NOTIFICATION_SETTINGS_KEY = 'habit-tracker-notifications';
 const DB_NAME = 'HabitTrackerDB';
 const DB_VERSION = 2;
@@ -86,6 +86,17 @@ self.addEventListener('activate', (event) => {
   console.log('Service Worker activating...');
   event.waitUntil(
     Promise.all([
+      // Wyczyść stary cache
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
       self.clients.claim(),
       loadSettingsFromDB().then(async settings => {
         notificationSettings = settings;

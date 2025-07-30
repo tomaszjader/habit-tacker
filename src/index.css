@@ -7,34 +7,52 @@ html {
   height: 100%;
 }
 
-html.dark {
-  background-color: #111827;
-  color: #f9fafb;
+/* Domyślnie ustaw tryb ciemny dla PWA */
+html, html.dark {
+  background-color: #111827 !important;
+  color: #f9fafb !important;
 }
 
 html.light {
-  background-color: #ffffff;
-  color: #111827;
+  background-color: #ffffff !important;
+  color: #111827 !important;
 }
 
 body {
   height: 100%;
   margin: 0;
   padding: 0;
+  background-color: inherit !important;
+  color: inherit !important;
 }
 
-html.dark body {
-  background-color: #111827;
-  color: #f9fafb;
+/* Dodatkowe style dla PWA */
+html.dark body, body {
+  background-color: #111827 !important;
+  color: #f9fafb !important;
 }
 
 html.light body {
-  background-color: #ffffff;
-  color: #111827;
+  background-color: #ffffff !important;
+  color: #111827 !important;
 }
 
 #root {
   min-height: 100vh;
+  background-color: inherit;
+}
+
+/* Zapewnienie że tryb ciemny działa w PWA */
+@media (prefers-color-scheme: dark) {
+  html:not(.light) {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+  }
+  
+  html:not(.light) body {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+  }
 }
 
 /* Mobile-first responsive text utilities */
