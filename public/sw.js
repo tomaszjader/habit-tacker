@@ -1,8 +1,18 @@
-// Service Worker for background notifications
-const CACHE_NAME = 'habit-tracker-v2'; // Zwiększam wersję cache
+// Enhanced Service Worker for PWA on Android
+const CACHE_NAME = 'habit-tracker-v3'; // Zwiększam wersję cache
 const NOTIFICATION_SETTINGS_KEY = 'habit-tracker-notifications';
 const DB_NAME = 'HabitTrackerDB';
 const DB_VERSION = 2;
+
+// Assets to cache for offline support
+const STATIC_ASSETS = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/favicon.svg',
+  '/icon-192.png',
+  '/icon-512.png'
+];
 
 // Store notification settings and scheduled alarms
 let notificationSettings = {
@@ -68,15 +78,22 @@ async function loadSettingsFromDB() {
   }
 }
 
-// Install event
+// Install event - cache static assets
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
   event.waitUntil(
     Promise.all([
-      self.skipWaiting(),
+      // Cache static assets
+      caches.open(CACHE_NAME).then(cache => {
+        console.log('Caching static assets...');
+        return cache.addAll(STATIC_ASSETS);
+      }),
+      // Load notification settings
       loadSettingsFromDB().then(settings => {
         notificationSettings = settings;
-      })
+      }),
+      // Skip waiting to activate immediately
+      self.skipWaiting()
     ])
   );
 });
@@ -339,4 +356,63 @@ self.addEventListener('push', (event) => {
       )
     );
   }
+});
+
+// Fetch handler for offline support and caching
+self.addEventListener('fetch', (event) => {
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // Skip chrome-extension and other non-http requests
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
+  event.respondWith(
+    caches.match(event.request).then(cachedResponse => {
+      // Return cached version if available
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+
+      // For navigation requests, try network first, fallback to cache
+      if (event.request.mode === 'navigate') {
+        return fetch(event.request).then(response => {
+          // Cache successful responses
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return response;
+        }).catch(() => {
+          // Fallback to cached index.html for navigation
+          return caches.match('/index.html') || caches.match('/');
+        });
+      }
+
+      // For other requests, try network first
+      return fetch(event.request).then(response => {
+        // Cache successful responses for static assets
+        if (response.status === 200 && 
+            (event.request.url.includes('.js') || 
+             event.request.url.includes('.css') || 
+             event.request.url.includes('.png') || 
+             event.request.url.includes('.svg') ||
+             event.request.url.includes('.ico'))) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseClone);
+          });
+        }
+        return response;
+      }).catch(() => {
+        // Return cached version if network fails
+        return caches.match(event.request);
+      });
+    })
+  );
 });

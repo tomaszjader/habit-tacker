@@ -1,12 +1,15 @@
 {
-  "name": "Habit Tracker",
-  "short_name": "Habits",
-  "description": "Track your daily habits and build better routines",
+  "name": "Habit Tracker - Śledzenie Nawyków",
+  "short_name": "Nawyki",
+  "description": "Śledź swoje codzienne nawyki i buduj lepsze rutyny",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#111827",
-  "theme_color": "#3b82f6",
+  "theme_color": "#111827",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "id": "habit-tracker-pwa",
   "icons": [
     {
       "src": "/favicon.svg",
@@ -39,10 +42,9 @@
       "purpose": "maskable"
     }
   ],
-  "categories": ["productivity", "lifestyle"],
+  "categories": ["productivity", "lifestyle", "health"],
   "lang": "pl",
   "dir": "ltr",
-  "scope": "/",
   "permissions": [
     "notifications",
     "background-sync"
@@ -61,5 +63,22 @@
   },
   "background_sync": [
     "schedule-notifications"
-  ]
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "protocol_handlers": [],
+  "file_handlers": [],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }
