@@ -36,7 +36,7 @@ function AppContent() {
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
   const [isDragLocked, setIsDragLocked] = useState(true); // Domyślnie zablokowane
   const [showMenu, setShowMenu] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(true);
 
   // Load data on mount
   useEffect(() => {

@@ -10,7 +10,14 @@ async function convertSvgToPng(svgPath, outputPath, size) {
   try {
     const svgBuffer = fs.readFileSync(svgPath);
     await sharp(svgBuffer)
-      .resize(size, size)
+      .resize(Math.round(size * 0.8), Math.round(size * 0.8))
+      .extend({
+        top: Math.round(size * 0.1),
+        bottom: Math.round(size * 0.1),
+        left: Math.round(size * 0.1),
+        right: Math.round(size * 0.1),
+        background: { r: 255, g: 255, b: 255, alpha: 1 }
+      })
       .png()
       .toFile(outputPath);
     console.log(`Converted ${svgPath} to ${outputPath}`);
