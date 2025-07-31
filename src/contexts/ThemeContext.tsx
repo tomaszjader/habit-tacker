@@ -22,8 +22,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return 'dark';
     }
     
-    // Domyślnie tryb ciemny dla PWA
-    return 'dark';
+    // Domyślnie tryb jasny dla lepszego splash screen
+    return 'light';
   });
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const isDark = theme === 'dark';
     const backgroundColor = isDark ? '#111827' : '#ffffff';
     const textColor = isDark ? '#f9fafb' : '#111827';
-    const themeColor = isDark ? '#111827' : '#ffffff';
+    const themeColor = '#10b981'; // Zawsze zielony motyw
     
     // Ustaw kolory tła i tekstu
     document.body.style.backgroundColor = backgroundColor;

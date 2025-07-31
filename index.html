@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pl" class="dark">
+<html lang="pl">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -12,8 +12,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
     <!-- Theme colors for different modes -->
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#10b981" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#10b981" media="(prefers-color-scheme: dark)" />
 
     <!-- PWA meta tags -->
     <meta name="application-name" content="Habit Tracker" />
@@ -41,6 +41,12 @@
     <!-- Android 12+ Splash Screen API control -->
     <meta name="android-splash-screen-duration" content="0" />
     <meta name="android-splash-screen-fade-out-duration" content="0" />
+    
+    <!-- Additional Android splash screen control -->
+    <meta name="msapplication-navbutton-color" content="#10b981" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="android-splash-screen-background-color" content="#ffffff" />
+    <meta name="android-splash-screen-icon" content="/icon-192.png" />
 
     <!-- PWA meta tags -->
     <meta name="description" content="Track your daily habits and build better routines" />
@@ -55,19 +61,19 @@
     <title>Habit Tracker</title>
 
     <style>
-      /* Critical CSS for immediate dark mode rendering and splash screen */
+      /* Critical CSS for immediate light mode rendering and splash screen */
       html {
-        background-color: #111827 !important;
-        color: #f9fafb !important;
-        color-scheme: dark;
+        background-color: #ffffff !important;
+        color: #111827 !important;
+        color-scheme: light;
         height: 100%;
         overflow: hidden;
       }
 
-      html.light {
-        background-color: #ffffff !important;
-        color: #111827 !important;
-        color-scheme: light;
+      html.dark {
+        background-color: #111827 !important;
+        color: #f9fafb !important;
+        color-scheme: dark;
       }
 
       body {
