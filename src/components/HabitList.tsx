@@ -128,8 +128,7 @@ const HabitList: React.FC<HabitListProps> = ({
     setDraggedIndex(index);
     setIsTouchDragging(false);
     
-    // Prevent scrolling while potentially dragging
-    e.preventDefault();
+    // Don't prevent default here - allow scrolling to work
   };
 
   const handleTouchMove = (e: React.TouchEvent, index: number) => {
@@ -141,17 +140,19 @@ const HabitList: React.FC<HabitListProps> = ({
     
     const deltaY = Math.abs(currentY - touchStartY);
     
-    // Start dragging if moved more than 10px
-    if (deltaY > 10 && !isTouchDragging) {
+    // Start dragging if moved more than 20px (increased threshold)
+    if (deltaY > 20 && !isTouchDragging) {
       setIsTouchDragging(true);
       // Add visual feedback
       const element = e.currentTarget as HTMLElement;
       element.style.opacity = '0.5';
       element.style.transform = 'scale(0.95) rotate(2deg)';
+      // Only prevent scrolling when actually dragging
+      e.preventDefault();
     }
     
     if (isTouchDragging) {
-      // Prevent scrolling
+      // Prevent scrolling only when dragging
       e.preventDefault();
       
       // Calculate which item we're over
@@ -205,7 +206,7 @@ const HabitList: React.FC<HabitListProps> = ({
           onTouchMove={(e) => handleTouchMove(e, index)}
           onTouchEnd={(e) => handleTouchEnd(e, index)}
           className={`
-            transition-all duration-300 touch-none
+            transition-all duration-300
             ${isDragLocked ? 'cursor-default' : 'cursor-move'}
             ${draggedIndex === index ? 'opacity-60 scale-95 rotate-2 z-50' : ''}
             ${dragOverIndex === index && draggedIndex !== index 

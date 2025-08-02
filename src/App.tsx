@@ -317,7 +317,7 @@ function AppContent() {
   }
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' 
+    <div className={`min-h-screen flex flex-col ${theme === 'dark' 
       ? 'bg-gradient-to-br from-tesla-900 via-gray-900 to-tesla-800' 
       : 'bg-gradient-to-br from-apple-50 via-white to-apple-100'
     }`}>
@@ -530,7 +530,7 @@ function AppContent() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-md mx-auto px-3 sm:px-4 py-2 sm:py-3 h-[calc(100vh-160px)] overflow-y-auto">
+      <div className="max-w-md mx-auto px-3 sm:px-4 py-2 sm:py-3 min-h-0 flex-1 overflow-y-auto overscroll-contain mobile-scroll">
         <HabitList
           habits={habits}
           statuses={statuses}

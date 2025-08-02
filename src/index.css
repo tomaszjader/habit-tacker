@@ -153,6 +153,25 @@ button, [role="button"], input[type="submit"], input[type="button"] {
   touch-action: manipulation;
 }
 
+/* Enhanced mobile scrolling */
+.mobile-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+/* Improve scrolling performance on mobile */
+@media (max-width: 768px) {
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .overflow-y-auto {
+    overscroll-behavior-y: contain;
+    scroll-behavior: smooth;
+  }
+}
+
 /* Ensure proper dark mode for system UI */
 @media (prefers-color-scheme: dark) {
   html:not(.light) {
