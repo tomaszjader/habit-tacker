@@ -42,7 +42,7 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
       aria-modal="true"
       aria-labelledby="add-habit-title"
     >
-      <div className={`rounded-xl p-6 w-full max-w-md ${
+      <div className={`add-habit-modal rounded-xl p-6 w-full max-w-md ${
         theme === 'dark' ? 'bg-gray-800' : 'bg-white'
       }`}>
         <div className="flex justify-between items-center mb-6">
@@ -68,7 +68,7 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="add-habit-form space-y-6">
           <div>
             <label htmlFor="habitName" className={`block text-sm font-medium mb-2 ${
               theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
@@ -96,14 +96,14 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
             }`}>
               {t('habits.validDays')}
             </label>
-            <div className="grid grid-cols-7 gap-2" role="group" aria-label={t('habits.validDays')}>
+            <div className="day-selector grid grid-cols-7 gap-2" role="group" aria-label={t('habits.validDays')}>
               {dayNames.map((day, index) => (
                 <button
                   key={day}
                   type="button"
                   onClick={() => toggleDay(index)}
                   className={`
-                    py-2 px-1 text-sm font-medium rounded-lg transition-all duration-200 truncate
+                    day-button py-2 px-1 text-sm font-medium rounded-lg transition-all duration-200 truncate
                     ${validDays.includes(index)
                       ? 'bg-blue-500 text-white shadow-md'
                       : theme === 'dark'
@@ -126,11 +126,11 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
             </p>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="form-buttons flex gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className={`flex-1 py-3 px-4 border rounded-lg font-medium ${
+              className={`form-button flex-1 py-3 px-4 border rounded-lg font-medium ${
                 theme === 'dark'
                   ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
                   : 'border-gray-300 text-gray-700 hover:bg-gray-50'
@@ -141,7 +141,7 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
             <button
               type="submit"
               disabled={!name.trim() || validDays.length === 0}
-              className="flex-1 py-3 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
+              className="form-button flex-1 py-3 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
             >
               {t('habits.save')}
             </button>

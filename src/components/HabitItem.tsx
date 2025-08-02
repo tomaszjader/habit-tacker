@@ -82,7 +82,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
   return (
     <>
       <div className={`
-        relative overflow-hidden rounded-[2rem] p-6 sm:p-8 group
+        habit-item habit-card relative overflow-hidden rounded-[2rem] p-6 sm:p-8 group
         transition-all duration-700 ease-apple hover:scale-[1.02] hover:-translate-y-2 
         ${theme === 'dark' 
           ? 'bg-gradient-to-br from-gray-900/95 via-gray-800/90 to-gray-900/95 border border-white/20 shadow-2xl hover:shadow-glow hover:border-white/30' 
@@ -170,7 +170,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
               )}
               
               <h3 className={`
-                font-bold text-xl tracking-tight truncate transition-all duration-500
+                habit-title font-bold text-xl tracking-tight truncate transition-all duration-500
                 hover:scale-[1.02] cursor-default relative
                 ${theme === 'dark' 
                   ? 'text-transparent bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text' 
@@ -283,7 +283,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
         <div className="grid grid-cols-2 gap-4 mb-6 relative z-10">
           {/* Current Streak Card */}
           <div className={`
-            relative overflow-hidden rounded-3xl p-4 transition-all duration-700
+            stats-card relative overflow-hidden rounded-3xl p-4 transition-all duration-700
             hover:scale-[1.08] hover:shadow-2xl hover:-translate-y-1 group/streak
             ${theme === 'dark' 
               ? 'bg-gradient-to-br from-blue-900/40 via-indigo-900/30 to-purple-900/40 border border-blue-400/30 hover:border-blue-400/50' 
@@ -347,7 +347,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
 
           {/* Best Streak Card */}
           <div className={`
-            relative overflow-hidden rounded-3xl p-4 transition-all duration-700
+            stats-card relative overflow-hidden rounded-3xl p-4 transition-all duration-700
             hover:scale-[1.08] hover:shadow-2xl hover:-translate-y-1 group/best
             ${theme === 'dark' 
               ? 'bg-gradient-to-br from-emerald-900/40 via-green-900/30 to-teal-900/40 border border-emerald-400/30 hover:border-emerald-400/50' 
@@ -460,7 +460,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
             </div>
           </div>
           
-          <div className="flex gap-3 justify-between">
+          <div className="weekly-schedule flex gap-3 justify-between">
             {['N', 'P', 'W', 'Ś', 'C', 'P', 'S'].map((dayName, index) => (
               <div key={index} className="flex flex-col items-center gap-2 group/day">
                 <div className={`text-xs font-bold tracking-wider ${
@@ -470,7 +470,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
                 </div>
                 <div
                   className={`
-                    w-8 h-8 rounded-2xl flex items-center justify-center transition-all duration-500 
+                    day-indicator w-8 h-8 rounded-2xl flex items-center justify-center transition-all duration-500 
                     hover:scale-125 hover:shadow-xl hover:-translate-y-1 cursor-pointer group-hover/day:rotate-12
                     ${habit.validDays.includes(index) 
                       ? theme === 'dark'
@@ -509,11 +509,11 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
         </div>
 
         {/* Premium Action Buttons */}
-        <div className="flex gap-4">
+        <div className="action-buttons flex gap-4">
           <button
             onClick={() => setShowHistory(true)}
             className={`
-              group/btn flex-1 flex items-center justify-center gap-3 py-4 px-5 rounded-3xl font-bold transition-all duration-500 
+              action-button group/btn flex-1 flex items-center justify-center gap-3 py-4 px-5 rounded-3xl font-bold transition-all duration-500 
               hover:scale-105 hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden
               ${theme === 'dark' 
                 ? 'bg-gradient-to-br from-gray-700/60 via-gray-600/50 to-gray-700/60 text-white/90 hover:from-gray-600/70 hover:to-gray-500/70 border border-white/20 hover:border-white/30' 
@@ -537,7 +537,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
           <button
             onClick={() => setShowStatusPicker(true)}
             className={`
-              group/btn flex-1 flex items-center justify-center gap-3 py-4 px-5 rounded-3xl font-bold transition-all duration-500 
+              action-button group/btn flex-1 flex items-center justify-center gap-3 py-4 px-5 rounded-3xl font-bold transition-all duration-500 
               hover:scale-105 hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden
               ${theme === 'dark' 
                 ? 'bg-gradient-to-br from-blue-600/60 via-purple-600/50 to-indigo-600/60 text-white hover:from-blue-500/70 hover:to-purple-500/70 border border-blue-400/40 hover:border-blue-300/50' 

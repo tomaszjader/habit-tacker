@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="/android/android-launchericon-512-512.png" />
 
     <!-- Enhanced viewport for PWA on Android -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
 
     <!-- Theme colors for different modes -->
     <meta name="theme-color" content="#10b981" media="(prefers-color-scheme: light)" />
@@ -67,7 +67,8 @@
         color: #111827 !important;
         color-scheme: light;
         height: 100%;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
       }
 
       html.dark {
@@ -87,9 +88,9 @@
         -moz-osx-font-smoothing: grayscale;
         -webkit-tap-highlight-color: transparent;
         -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        user-select: none;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       #root {

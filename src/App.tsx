@@ -327,15 +327,15 @@ function AppContent() {
           ? 'border-white/10' 
           : 'border-black/5'
       } border-b backdrop-blur-xl`}>
-        <div className="max-w-md mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <div className="w-full max-w-md mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="relative">
-                <Logo size={40} className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-lg" />
+                <Logo size={40} className="w-10 h-10 drop-shadow-lg" />
                 <div className="absolute inset-0 bg-gradient-to-r from-apple-400 to-apple-600 rounded-full opacity-20 animate-pulse"></div>
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className={`text-xl sm:text-2xl font-bold tracking-tight truncate bg-gradient-to-r ${
+                <h1 className={`text-lg font-bold tracking-tight truncate bg-gradient-to-r ${
                   theme === 'dark' 
                     ? 'from-white to-apple-200 text-transparent bg-clip-text' 
                     : 'from-tesla-800 to-tesla-600 text-transparent bg-clip-text'
@@ -348,7 +348,7 @@ function AppContent() {
                       ? 'bg-green-400 animate-pulse' 
                       : 'bg-apple-400'
                   }`}></div>
-                  <p className={`text-sm sm:text-base font-medium ${
+                  <p className={`text-sm font-medium ${
                     theme === 'dark' ? 'text-apple-200' : 'text-tesla-600'
                   }`}>
                     {completedToday} {t('habits.of')} {validHabitsToday.length} {t('habits.completed')}
@@ -357,15 +357,15 @@ function AppContent() {
               </div>
             </div>
             
-            <div className="flex gap-2 sm:gap-3">
+            <div className="flex gap-3">
               {/* Add Habit Button */}
               <button
                 onClick={() => setShowAddForm(true)}
-                className="celebration-button btn-premium w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shadow-apple group"
+                className="celebration-button btn-premium w-11 h-11 rounded-2xl flex items-center justify-center shadow-apple group"
                 aria-label={t('habits.add')}
                 title={t('habits.add')}
               >
-                <Plus size={18} className="sm:w-5 sm:h-5 transition-transform group-hover:rotate-90 duration-300" />
+                <Plus size={20} className="transition-transform group-hover:rotate-90 duration-300" />
               </button>
 
               {/* Menu Button */}
@@ -373,7 +373,7 @@ function AppContent() {
                 <button
                   id="menu-button"
                   onClick={toggleMenu}
-                  className={`celebration-button w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shadow-apple transition-all duration-300 group ${
+                  className={`celebration-button w-11 h-11 rounded-2xl flex items-center justify-center shadow-apple transition-all duration-300 group ${
                     theme === 'dark' 
                       ? 'bg-white/10 hover:bg-white/20 border border-white/20' 
                       : 'bg-black/5 hover:bg-black/10 border border-black/10'
@@ -385,10 +385,10 @@ function AppContent() {
                 >
                   <div className="relative">
                     {showMenu ? 
-                      <X size={18} className={`sm:w-5 sm:h-5 transition-all duration-300 ${
+                      <X size={20} className={`transition-all duration-300 ${
                         theme === 'dark' ? 'text-white' : 'text-tesla-800'
                       } group-hover:rotate-90`} /> :
-                      <Menu size={18} className={`sm:w-5 sm:h-5 transition-all duration-300 ${
+                      <Menu size={20} className={`transition-all duration-300 ${
                         theme === 'dark' ? 'text-white' : 'text-tesla-800'
                       } group-hover:scale-110`} />
                     }
@@ -530,7 +530,7 @@ function AppContent() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-md mx-auto px-3 sm:px-4 py-2 sm:py-3 min-h-0 flex-1 overflow-y-auto overscroll-contain mobile-scroll">
+      <div className="w-full max-w-md mx-auto px-4 py-3 min-h-0 flex-1 overflow-y-auto overscroll-contain mobile-scroll">
         <HabitList
           habits={habits}
           statuses={statuses}
