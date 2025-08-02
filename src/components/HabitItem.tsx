@@ -67,9 +67,21 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
       }`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-            <div className={`p-1 cursor-grab active:cursor-grabbing ${
-              theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-            }`} title={t('habits.dragToReorder')}>
+            <div 
+              className={`p-1 cursor-grab active:cursor-grabbing ${
+                theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+              }`} 
+              title={t('habits.dragToReorder')}
+              role="button"
+              tabIndex={0}
+              aria-label={t('habits.dragToReorder')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  // Focus handling for keyboard users
+                }
+              }}
+            >
               <GripVertical size={14} className="sm:w-4 sm:h-4" />
             </div>
             
@@ -118,6 +130,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
                   : 'text-gray-400 hover:text-gray-600'
               }`}
               title={t('habits.editHistory')}
+              aria-label={`${t('habits.editHistory')} - ${habit.name}`}
             >
               <Settings size={16} className="sm:w-[18px] sm:h-[18px]" />
             </button>
@@ -139,6 +152,8 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
                 }
               `}
               title={isValidToday ? t('habits.clickToSelect') : t('habits.notApplicableToday')}
+              aria-label={`${habit.name} - ${statusDisplay.text}${isValidToday ? ` - ${t('habits.clickToSelect')}` : ` - ${t('habits.notApplicableToday')}`}`}
+              aria-expanded={showStatusPicker}
             >
               {statusDisplay.emoji}
             </button>

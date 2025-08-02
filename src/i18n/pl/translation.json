@@ -58,7 +58,11 @@
       "today": "Dzisiaj",
       "yesterday": "Wczoraj",
       "daysAgo": "{{count}} dni temu"
-    }
+    },
+    "allCompleted": "🎉 Wszystkie nawyki ukończone! Świetna robota! 🎉",
+    "selected": "wybrane",
+    "notSelected": "nie wybrane",
+    "loading": "Ładowanie nawyków..."
   },
   "notifications": {
     "title": "Powiadomienia",

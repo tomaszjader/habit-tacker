@@ -36,13 +36,27 @@ function AppContent() {
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
   const [isDragLocked, setIsDragLocked] = useState(true); // Domyślnie zablokowane
   const [showMenu, setShowMenu] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load data on mount
   useEffect(() => {
-    setHabits(loadHabits());
-    setStatuses(loadHabitStatuses());
-    setIsLoaded(true);
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        // Simulate loading time for better UX
+        await new Promise(resolve => setTimeout(resolve, 300));
+        setHabits(loadHabits());
+        setStatuses(loadHabitStatuses());
+        setIsLoaded(true);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadData();
   }, []);
 
   // Save data when it changes (but not on initial load)
@@ -234,7 +248,7 @@ function AppContent() {
           
           // Show completion message
           const message = document.createElement('div');
-          message.textContent = '🎉 Wszystkie nawyki ukończone! Świetna robota! 🎉';
+          message.textContent = t('habits.allCompleted');
           message.style.cssText = `
             position: fixed;
             top: 50%;
@@ -264,6 +278,18 @@ function AppContent() {
     }
   }, [completedToday, validHabitsToday.length]);
 
+  // Show loading screen
+  if (isLoading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`}>
+        <div className="text-center">
+          <div className={`animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4 ${theme === 'dark' ? 'border-white' : 'border-blue-500'}`}></div>
+          <p className={`text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>{t('habits.title')}...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`}>
       {/* Header */}
@@ -285,6 +311,8 @@ function AppContent() {
               <button
                 onClick={() => setShowAddForm(true)}
                 className="celebration-button w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 active:scale-95"
+                aria-label={t('habits.add')}
+                title={t('habits.add')}
               >
                 <Plus size={16} className="sm:w-5 sm:h-5" />
               </button>
@@ -292,8 +320,13 @@ function AppContent() {
               {/* Menu Button */}
               <div className="relative">
                 <button
+                  id="menu-button"
                   onClick={toggleMenu}
                   className={`celebration-button w-8 h-8 sm:w-10 sm:h-10 ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} rounded-full flex items-center justify-center transition-all duration-200 active:scale-95`}
+                  aria-label={t('menu.title')}
+                  aria-expanded={showMenu}
+                  aria-haspopup="menu"
+                  title={t('menu.title')}
                 >
                   {showMenu ? 
                     <X size={16} className={`sm:w-5 sm:h-5 ${theme === 'dark' ? 'text-white' : 'text-gray-600'}`} /> :
@@ -303,7 +336,11 @@ function AppContent() {
 
               {/* Dropdown Menu */}
               {showMenu && (
-                <div className={`absolute right-0 top-12 w-56 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-lg shadow-lg z-50`}>
+                <div 
+                  className={`absolute right-0 top-12 w-56 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-lg shadow-lg z-50`}
+                  role="menu"
+                  aria-labelledby="menu-button"
+                >
                   <div className={`p-3 border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
                     <h3 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{t('menu.title')}</h3>
                   </div>
@@ -313,6 +350,8 @@ function AppContent() {
                      <button
                        onClick={handleDragLockToggle}
                        className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                       role="menuitem"
+                       aria-label={`${t('menu.dragLock')} - ${isDragLocked ? t('habits.orderLocked') : t('habits.orderUnlocked')}`}
                      >
                        {isDragLocked ? 
                          <Lock size={18} className="text-red-500" /> : 
@@ -328,6 +367,8 @@ function AppContent() {
                     <button
                       onClick={handleNotificationSettings}
                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      role="menuitem"
+                      aria-label={t('menu.notifications')}
                     >
                       <Bell size={18} className="text-yellow-500" />
                       <span>{t('menu.notifications')}</span>
@@ -337,6 +378,8 @@ function AppContent() {
                     <button
                       onClick={handleThemeToggle}
                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      role="menuitem"
+                      aria-label={`${t('menu.theme')} - ${theme === 'dark' ? t('theme.dark') : t('theme.light')}`}
                     >
                       {theme === 'dark' ? 
                         <Sun size={18} className="text-orange-500" /> : 
@@ -352,6 +395,8 @@ function AppContent() {
                     <button
                       onClick={handleLanguageChange}
                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      role="menuitem"
+                      aria-label={`${t('menu.language')} - ${t('language') === 'pl' ? 'Polski' : 'English'}`}
                     >
                       <Languages size={18} className="text-indigo-500" />
                       <span>{t('menu.language')}</span>

@@ -38,6 +38,9 @@
     "unlockOrder": "Unlock order",
     "orderLocked": "Order locked",
     "orderUnlocked": "Order unlocked",
+    "selected": "selected",
+    "notSelected": "not selected",
+    "loading": "Loading habits...",
     "status": {
       "completed": "Completed",
       "partial": "Partial",
@@ -58,7 +61,8 @@
       "today": "Today",
       "yesterday": "Yesterday",
       "daysAgo": "{{count}} days ago"
-    }
+    },
+    "allCompleted": "🎉 All habits completed! Great job! 🎉"
   },
   "notifications": {
     "title": "Notifications",

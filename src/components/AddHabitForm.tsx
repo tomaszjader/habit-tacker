@@ -36,14 +36,24 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-habit-title"
+    >
       <div className={`rounded-xl p-6 w-full max-w-md ${
         theme === 'dark' ? 'bg-gray-800' : 'bg-white'
       }`}>
         <div className="flex justify-between items-center mb-6">
-          <h2 className={`text-xl font-bold ${
-            theme === 'dark' ? 'text-white' : 'text-gray-800'
-          }`}>{t('habits.add')}</h2>
+          <h2 
+            id="add-habit-title"
+            className={`text-xl font-bold ${
+              theme === 'dark' ? 'text-white' : 'text-gray-800'
+            }`}
+          >
+            {t('habits.add')}
+          </h2>
           <button
             onClick={onClose}
             className={`${
@@ -51,6 +61,8 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
                 ? 'text-gray-400 hover:text-gray-200' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
+            aria-label={t('habits.cancel')}
+            title={t('habits.cancel')}
           >
             <X size={24} />
           </button>
@@ -84,7 +96,7 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
             }`}>
               {t('habits.validDays')}
             </label>
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-2" role="group" aria-label={t('habits.validDays')}>
               {dayNames.map((day, index) => (
                 <button
                   key={day}
@@ -100,6 +112,8 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
                     }
                   `}
                   title={day}
+                  aria-label={`${day} - ${validDays.includes(index) ? t('habits.selected') : t('habits.notSelected')}`}
+                  aria-pressed={validDays.includes(index)}
                 >
                   {day}
                 </button>
