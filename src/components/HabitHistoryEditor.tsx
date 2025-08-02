@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Habit, HabitStatus, StatusType } from '../types/habit';
 import { getDateDaysAgo, isValidDay } from '../utils/storage';
 import { getHabitStatusForDate, getDateLabel } from '../utils/habitUtils';
@@ -6,7 +6,8 @@ import StatusPicker from './StatusPicker';
 import Toast from './Toast';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
-import { Trash2, Edit3 } from 'lucide-react';
+import { Trash2, Edit3, History, Calendar } from 'lucide-react';
+import { showModernConfirm } from '../utils/modernDialogs';
 
 interface HabitHistoryEditorProps {
   habit: Habit;
@@ -30,6 +31,22 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
   const [habitName, setHabitName] = useState(habit.name);
   const [isEditingValidDays, setIsEditingValidDays] = useState(false);
   const [validDays, setValidDays] = useState(habit.validDays);
+
+  // Construct history from statuses
+  const habitHistory = useMemo(() => {
+    const history: Record<string, StatusType> = {};
+    statuses
+      .filter(status => status.habitId === habit.id)
+      .forEach(status => {
+        history[status.date] = status.status;
+      });
+    return history;
+  }, [statuses, habit.id]);
+
+  // Function to update status
+  const updateStatus = (date: string, newStatus: StatusType) => {
+    onStatusChange(date, newStatus);
+  };
   
   const dates = [0, 1, 2, 3].map(daysAgo => ({
     daysAgo,
@@ -38,8 +55,9 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
     label: getDateLabel(daysAgo)
   }));
 
-  const handleDeleteHabit = () => {
-    if (window.confirm(t('habits.deleteConfirm'))) {
+  const handleDeleteHabit = async () => {
+    const confirmed = await showModernConfirm(t('habits.deleteConfirm'), 'Usuń', 'Anuluj');
+    if (confirmed) {
       onDeleteHabit(habit.id);
       setToastMessage(t('habits.deleted'));
       setShowToast(true);
@@ -91,21 +109,49 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className={`rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto ${
-        theme === 'dark' ? 'bg-gray-800' : 'bg-white'
-      }`}>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className={`text-xl font-bold ${
-            theme === 'dark' ? 'text-white' : 'text-gray-800'
-          }`}>{habit.name}</h2>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div className={`
+        relative rounded-3xl p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto
+        ${theme === 'dark' 
+          ? 'bg-gradient-to-br from-gray-800/95 via-gray-700/90 to-gray-800/95 border border-white/20' 
+          : 'bg-gradient-to-br from-white/95 via-gray-50/90 to-white/95 border border-gray-200/60'
+        }
+        backdrop-blur-xl shadow-2xl animate-slide-up
+      `}>
+        {/* Floating particles */}
+        <div className="absolute top-6 right-8 w-1 h-1 rounded-full bg-purple-400/60 animate-particle-float" />
+        <div className="absolute bottom-8 left-10 w-0.5 h-0.5 rounded-full bg-blue-400/60 animate-particle-float" style={{ animationDelay: '2s' }} />
+        
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-4">
+            <div className={`
+              p-3 rounded-2xl transition-all duration-500 hover:scale-110 hover:rotate-12
+              ${theme === 'dark' ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100/80 text-blue-700'}
+              shadow-lg backdrop-blur-sm
+            `}>
+              <History size={20} />
+            </div>
+            <h2 className={`text-2xl font-bold tracking-wide bg-gradient-to-r bg-clip-text text-transparent ${
+              theme === 'dark' 
+                ? 'from-white via-blue-100 to-purple-100' 
+                : 'from-gray-900 via-blue-900 to-purple-900'
+            }`}>
+              {habit.name}
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            className={`text-2xl leading-none ${
-              theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
-            }`}
+            className={`
+              w-10 h-10 rounded-2xl flex items-center justify-center text-xl transition-all duration-300 
+              hover:scale-110 hover:rotate-90 group/close
+              ${theme === 'dark' 
+                ? 'bg-gray-700/60 text-gray-400 hover:text-white hover:bg-gray-600/80 border border-white/10' 
+                : 'bg-gray-100/80 text-gray-500 hover:text-gray-700 hover:bg-gray-200/80 border border-gray-200/60'
+              }
+              backdrop-blur-sm shadow-lg
+            `}
           >
-            ×
+            <span className="group-hover/close:scale-110 transition-transform duration-200">×</span>
           </button>
         </div>
         
@@ -182,11 +228,12 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
           </div>
 
           {/* Edit Valid Days */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className={`text-sm font-medium ${
-                theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <label className={`text-lg font-semibold flex items-center gap-2 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-800'
               }`}>
+                <Calendar size={18} className={theme === 'dark' ? 'text-blue-300' : 'text-blue-600'} />
                 {t('habits.validDays')}
               </label>
               {!isEditingValidDays && (
@@ -206,20 +253,35 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
             
             {isEditingValidDays ? (
               <div className="space-y-3">
-                <div className="grid grid-cols-7 gap-1">
+                <div className={`
+                  p-4 rounded-2xl grid grid-cols-7 gap-2 transition-all duration-300
+                  ${theme === 'dark' 
+                    ? 'bg-gray-700/40 border border-white/10' 
+                    : 'bg-gray-50/80 border border-gray-200/60'
+                  }
+                  backdrop-blur-sm
+                `}>
                   {[0, 1, 2, 3, 4, 5, 6].map(day => (
                     <button
                       key={day}
                       onClick={() => toggleValidDay(day)}
-                      className={`p-2 text-xs rounded-lg border transition-colors ${
-                        validDays.includes(day)
-                          ? 'bg-blue-500 text-white border-blue-500'
+                      className={`
+                        p-3 rounded-xl text-sm font-medium transition-all duration-300 
+                        hover:scale-105 hover:shadow-lg group/day
+                        ${validDays.includes(day)
+                          ? theme === 'dark'
+                            ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+                            : 'bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25'
                           : theme === 'dark'
-                            ? 'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      }`}
+                          ? 'bg-gray-600/60 text-gray-300 hover:bg-gray-500/80 border border-white/10'
+                          : 'bg-white/80 text-gray-600 hover:bg-gray-100/80 border border-gray-200/60'
+                        }
+                        backdrop-blur-sm
+                      `}
                     >
-                      {t(`habits.days.${day}`).slice(0, 3)}
+                      <span className="group-hover/day:scale-110 transition-transform duration-200">
+                        {t(`habits.days.${day}`).slice(0, 3)}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -247,15 +309,26 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
                 </div>
               </div>
             ) : (
-              <div className="flex gap-1">
+              <div className={`
+                p-4 rounded-2xl flex gap-2 transition-all duration-300
+                ${theme === 'dark' 
+                  ? 'bg-gray-700/40 border border-white/10' 
+                  : 'bg-gray-50/80 border border-gray-200/60'
+                }
+                backdrop-blur-sm
+              `}>
                 {[0, 1, 2, 3, 4, 5, 6].map(day => (
                   <div
                     key={day}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs ${
-                      habit.validDays.includes(day) 
-                        ? 'bg-blue-500 text-white' 
-                        : theme === 'dark' ? 'bg-gray-600 text-gray-400' : 'bg-gray-200 text-gray-500'
-                    }`}
+                    className={`
+                      w-10 h-10 rounded-xl flex items-center justify-center text-sm font-medium
+                      transition-all duration-300 hover:scale-105
+                      ${habit.validDays.includes(day) 
+                        ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25' 
+                        : theme === 'dark' ? 'bg-gray-600/60 text-gray-400 border border-white/10' : 'bg-white/80 text-gray-500 border border-gray-200/60'
+                      }
+                      backdrop-blur-sm
+                    `}
                     title={t(`habits.days.${day}`)}
                   >
                     {t(`habits.days.${day}`).slice(0, 1)}
@@ -264,6 +337,98 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
               </div>
             )}
           </div>
+
+        {habit.isEmergency && (
+          <div className={`
+            relative p-6 rounded-2xl mb-8 transition-all duration-300 hover:scale-[1.02] group/emergency
+            ${theme === 'dark' 
+              ? 'bg-gradient-to-br from-red-900/30 via-red-800/20 to-red-900/30 border border-red-500/40' 
+              : 'bg-gradient-to-br from-red-50/80 via-red-25/60 to-red-50/80 border border-red-200/60'
+            }
+            backdrop-blur-sm shadow-lg
+          `}>
+            {/* Emergency glow effect */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-red-500/10 via-transparent to-red-500/10 opacity-0 group-hover/emergency:opacity-100 transition-opacity duration-500" />
+            
+            <div className="relative flex items-center gap-3 mb-3">
+              <div className={`
+                p-2 rounded-xl transition-all duration-300 group-hover/emergency:scale-110 group-hover/emergency:rotate-12
+                ${theme === 'dark' ? 'bg-red-500/20 text-red-300' : 'bg-red-100/80 text-red-700'}
+                shadow-lg
+              `}>
+                ⚠️
+              </div>
+              <span className={`font-semibold text-lg ${
+                theme === 'dark' ? 'text-red-300' : 'text-red-700'
+              }`}>
+                {t('habits.emergencyHabit')}
+              </span>
+            </div>
+            <p className={`text-sm leading-relaxed ${
+              theme === 'dark' ? 'text-red-200/90' : 'text-red-600/90'
+            }`}>
+              {t('habits.emergencyDescription')}
+            </p>
+          </div>
+        )}
+
+        {/* History Section */}
+        <div className="mb-8">
+          <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
+            theme === 'dark' ? 'text-white' : 'text-gray-800'
+          }`}>
+            <History size={18} className={theme === 'dark' ? 'text-green-300' : 'text-green-600'} />
+            {t('habits.history')}
+          </h3>
+          <div className={`
+            space-y-3 max-h-80 overflow-y-auto pr-2 scrollbar-thin
+            ${theme === 'dark' ? 'scrollbar-thumb-gray-600 scrollbar-track-gray-800' : 'scrollbar-thumb-gray-300 scrollbar-track-gray-100'}
+          `}>
+            {Object.entries(habitHistory)
+              .sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime())
+              .map(([date, status]) => {
+                const dateObj = new Date(date);
+                const dayOfWeek = dateObj.getDay();
+                const isValidDay = habit.validDays.includes(dayOfWeek);
+                
+                if (!isValidDay) return null;
+                
+                return (
+                  <div
+                    key={date}
+                    className={`
+                      flex items-center justify-between p-4 rounded-2xl transition-all duration-300 
+                      hover:scale-[1.02] hover:shadow-lg group/history
+                      ${theme === 'dark' 
+                        ? 'bg-gradient-to-r from-gray-700/60 via-gray-600/40 to-gray-700/60 border border-white/10' 
+                        : 'bg-gradient-to-r from-white/80 via-gray-50/60 to-white/80 border border-gray-200/60'
+                      }
+                      backdrop-blur-sm shadow-md
+                    `}
+                  >
+                    <div className={`text-sm font-medium ${
+                       theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+                     }`}>
+                       {dateObj.toLocaleDateString(t('language') === 'pl' ? 'pl-PL' : 'en-US', { 
+                         weekday: 'long', 
+                         year: 'numeric', 
+                         month: 'long', 
+                         day: 'numeric' 
+                       })}
+                     </div>
+                     <div className="group-hover/history:scale-105 transition-transform duration-200">
+                       <StatusPicker
+                         status={status}
+                         onStatusChange={(newStatus) => updateStatus(date, newStatus)}
+                         theme={theme}
+                         isValidDay={true}
+                       />
+                     </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
         </div>
         
         <div className={`border-t mb-6 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-200'}`}></div>
@@ -392,14 +557,27 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
           {/* Delete Button */}
           <button
             onClick={handleDeleteHabit}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-colors ${
-              theme === 'dark'
-                ? 'bg-red-900/20 hover:bg-red-900/30 text-red-400 hover:text-red-300 border-red-800'
-                : 'bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border-red-200'
-            }`}
+            className={`
+              relative w-full flex items-center justify-center gap-3 p-4 rounded-2xl font-semibold 
+              transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group/delete overflow-hidden
+              ${theme === 'dark'
+                ? 'bg-gradient-to-r from-red-600 via-red-500 to-red-600 hover:from-red-500 hover:to-red-700 text-white border border-red-400/30'
+                : 'bg-gradient-to-r from-red-500 via-red-400 to-red-500 hover:from-red-400 hover:to-red-600 text-white border border-red-300/30'
+              }
+              shadow-lg shadow-red-500/25
+            `}
           >
-            <Trash2 size={18} />
-            {t('habits.delete')}
+            {/* Ripple effect background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-red-400/20 via-transparent to-red-400/20 opacity-0 group-hover/delete:opacity-100 transition-opacity duration-500" />
+            
+            <div className="relative flex items-center gap-3">
+              <div className="group-hover/delete:scale-110 group-hover/delete:rotate-12 transition-transform duration-300">
+                <Trash2 size={20} />
+              </div>
+              <span className="group-hover/delete:scale-105 transition-transform duration-200">
+                {t('habits.delete')}
+              </span>
+            </div>
           </button>
         </div>
       </div>

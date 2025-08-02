@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Habit, HabitStatus, StatusType } from '../types/habit';
 import HabitItem from './HabitItem';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface HabitListProps {
   habits: Habit[];
@@ -23,6 +24,7 @@ const HabitList: React.FC<HabitListProps> = ({
   isDragLocked = false
 }) => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   
@@ -34,10 +36,20 @@ const HabitList: React.FC<HabitListProps> = ({
   
   if (habits.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-6xl mb-4">🎯</div>
-        <h2 className="text-xl font-semibold text-gray-600 mb-2">{t('habits.noHabitsYet')}</h2>
-        <p className="text-gray-500">{t('habits.addFirstHabit')}</p>
+      <div className={`text-center py-16 glass-card rounded-3xl ${
+        theme === 'dark' 
+          ? 'border-white/10 shadow-tesla' 
+          : 'border-black/5 shadow-apple'
+      }`}>
+        <div className="text-8xl mb-6 animate-bounce-subtle">🎯</div>
+        <h2 className={`text-2xl font-bold mb-3 ${
+          theme === 'dark' 
+            ? 'text-white bg-gradient-to-r from-apple-400 to-apple-600 bg-clip-text text-transparent' 
+            : 'text-tesla-800 bg-gradient-to-r from-tesla-600 to-tesla-800 bg-clip-text text-transparent'
+        }`}>{t('habits.noHabitsYet')}</h2>
+        <p className={`text-lg ${
+          theme === 'dark' ? 'text-white/70' : 'text-tesla-600'
+        }`}>{t('habits.addFirstHabit')}</p>
       </div>
     );
   }
@@ -179,7 +191,7 @@ const HabitList: React.FC<HabitListProps> = ({
   };
 
   return (
-    <div ref={containerRef} className="space-y-2 sm:space-y-3">
+    <div ref={containerRef} className="space-y-4 sm:space-y-5">
       {habits.map((habit, index) => (
         <div
           key={habit.id}
@@ -193,10 +205,15 @@ const HabitList: React.FC<HabitListProps> = ({
           onTouchMove={(e) => handleTouchMove(e, index)}
           onTouchEnd={(e) => handleTouchEnd(e, index)}
           className={`
-            transition-all duration-200 touch-none
+            transition-all duration-300 touch-none
             ${isDragLocked ? 'cursor-default' : 'cursor-move'}
-            ${draggedIndex === index ? 'opacity-50 scale-95 rotate-2' : ''}
-            ${dragOverIndex === index && draggedIndex !== index ? 'transform scale-105 shadow-lg border-2 border-blue-400' : ''}
+            ${draggedIndex === index ? 'opacity-60 scale-95 rotate-2 z-50' : ''}
+            ${dragOverIndex === index && draggedIndex !== index 
+              ? theme === 'dark'
+                ? 'transform scale-105 shadow-glow border-2 border-apple-400/50' 
+                : 'transform scale-105 shadow-apple border-2 border-tesla-400/50'
+              : ''
+            }
           `}
         >
           <HabitItem

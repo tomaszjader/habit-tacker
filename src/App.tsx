@@ -246,24 +246,35 @@ function AppContent() {
         if (headerElement) {
           createConfetti(headerElement);
           
-          // Show completion message
+          // Show completion message with modern glass morphism design
           const message = document.createElement('div');
-          message.textContent = t('habits.allCompleted');
+          message.innerHTML = `
+            <div style="text-align: center;">
+              <div style="font-size: 36px; margin-bottom: 16px; filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.8));">🎉</div>
+              <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.2;">${t('habits.allCompleted').replace(/🎉/g, '').trim()}</div>
+              <div style="font-size: 16px; opacity: 0.9; font-weight: 500;">Kontynuuj tak dalej! 💪</div>
+            </div>
+          `;
           message.style.cssText = `
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 25px 35px;
-            border-radius: 20px;
+            padding: 32px 40px;
+            border-radius: 24px;
             font-size: 20px;
             font-weight: bold;
             z-index: 10000;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-            animation: streak-celebration 4s ease-out forwards;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            animation: streak-celebration-enhanced 4s ease-out forwards;
             text-align: center;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            max-width: 90vw;
           `;
           
           document.body.appendChild(message);
@@ -281,40 +292,80 @@ function AppContent() {
   // Show loading screen
   if (isLoading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`}>
-        <div className="text-center">
-          <div className={`animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4 ${theme === 'dark' ? 'border-white' : 'border-blue-500'}`}></div>
-          <p className={`text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>{t('habits.title')}...</p>
+      <div className={`min-h-screen flex items-center justify-center ${theme === 'dark' 
+        ? 'bg-gradient-to-br from-tesla-900 via-gray-900 to-tesla-800' 
+        : 'bg-gradient-to-br from-apple-50 via-white to-apple-100'
+      }`}>
+        <div className="text-center glass-card p-8 rounded-4xl">
+          <div className="relative">
+            <div className={`animate-spin rounded-full h-16 w-16 border-4 border-transparent mx-auto mb-6 ${
+              theme === 'dark' 
+                ? 'border-t-apple-400 border-r-apple-500' 
+                : 'border-t-apple-600 border-r-apple-700'
+            }`}></div>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-apple-400 to-apple-600 opacity-20 animate-pulse"></div>
+          </div>
+          <p className={`text-xl font-semibold tracking-tight ${
+            theme === 'dark' ? 'text-white' : 'text-tesla-800'
+          }`}>
+            {t('habits.title')}
+          </p>
+          <div className="mt-2 h-1 w-24 mx-auto bg-gradient-to-r from-apple-400 to-apple-600 rounded-full animate-pulse"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`}>
+    <div className={`min-h-screen ${theme === 'dark' 
+      ? 'bg-gradient-to-br from-tesla-900 via-gray-900 to-tesla-800' 
+      : 'bg-gradient-to-br from-apple-50 via-white to-apple-100'
+    }`}>
       {/* Header */}
-      <div className={`sticky top-0 z-40 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} shadow-sm border-b backdrop-blur-sm bg-opacity-95`}>
+      <div className={`sticky top-0 z-40 glass-card ${
+        theme === 'dark' 
+          ? 'border-white/10' 
+          : 'border-black/5'
+      } border-b backdrop-blur-xl`}>
         <div className="max-w-md mx-auto px-3 sm:px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              <Logo size={36} className="w-9 h-9 sm:w-10 sm:h-10" />
+            <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+              <div className="relative">
+                <Logo size={40} className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-lg" />
+                <div className="absolute inset-0 bg-gradient-to-r from-apple-400 to-apple-600 rounded-full opacity-20 animate-pulse"></div>
+              </div>
               <div className="min-w-0 flex-1">
-                <h1 className={`text-lg sm:text-xl font-bold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{t('habits.title')}</h1>
-                <p className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                  {completedToday} {t('habits.of')} {validHabitsToday.length} {t('habits.completed')}
-                </p>
+                <h1 className={`text-xl sm:text-2xl font-bold tracking-tight truncate bg-gradient-to-r ${
+                  theme === 'dark' 
+                    ? 'from-white to-apple-200 text-transparent bg-clip-text' 
+                    : 'from-tesla-800 to-tesla-600 text-transparent bg-clip-text'
+                }`}>
+                  {t('habits.title')}
+                </h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className={`h-2 w-2 rounded-full ${
+                    completedToday === validHabitsToday.length && validHabitsToday.length > 0
+                      ? 'bg-green-400 animate-pulse' 
+                      : 'bg-apple-400'
+                  }`}></div>
+                  <p className={`text-sm sm:text-base font-medium ${
+                    theme === 'dark' ? 'text-apple-200' : 'text-tesla-600'
+                  }`}>
+                    {completedToday} {t('habits.of')} {validHabitsToday.length} {t('habits.completed')}
+                  </p>
+                </div>
               </div>
             </div>
             
-            <div className="flex gap-1 sm:gap-2">
+            <div className="flex gap-2 sm:gap-3">
               {/* Add Habit Button */}
               <button
                 onClick={() => setShowAddForm(true)}
-                className="celebration-button w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 active:scale-95"
+                className="celebration-button btn-premium w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shadow-apple group"
                 aria-label={t('habits.add')}
                 title={t('habits.add')}
               >
-                <Plus size={16} className="sm:w-5 sm:h-5" />
+                <Plus size={18} className="sm:w-5 sm:h-5 transition-transform group-hover:rotate-90 duration-300" />
               </button>
 
               {/* Menu Button */}
@@ -322,87 +373,152 @@ function AppContent() {
                 <button
                   id="menu-button"
                   onClick={toggleMenu}
-                  className={`celebration-button w-8 h-8 sm:w-10 sm:h-10 ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} rounded-full flex items-center justify-center transition-all duration-200 active:scale-95`}
+                  className={`celebration-button w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shadow-apple transition-all duration-300 group ${
+                    theme === 'dark' 
+                      ? 'bg-white/10 hover:bg-white/20 border border-white/20' 
+                      : 'bg-black/5 hover:bg-black/10 border border-black/10'
+                  }`}
                   aria-label={t('menu.title')}
                   aria-expanded={showMenu}
                   aria-haspopup="menu"
                   title={t('menu.title')}
                 >
-                  {showMenu ? 
-                    <X size={16} className={`sm:w-5 sm:h-5 ${theme === 'dark' ? 'text-white' : 'text-gray-600'}`} /> :
-                    <Menu size={16} className={`sm:w-5 sm:h-5 ${theme === 'dark' ? 'text-white' : 'text-gray-600'}`} />
-                  }
+                  <div className="relative">
+                    {showMenu ? 
+                      <X size={18} className={`sm:w-5 sm:h-5 transition-all duration-300 ${
+                        theme === 'dark' ? 'text-white' : 'text-tesla-800'
+                      } group-hover:rotate-90`} /> :
+                      <Menu size={18} className={`sm:w-5 sm:h-5 transition-all duration-300 ${
+                        theme === 'dark' ? 'text-white' : 'text-tesla-800'
+                      } group-hover:scale-110`} />
+                    }
+                  </div>
                 </button>
 
               {/* Dropdown Menu */}
               {showMenu && (
                 <div 
-                  className={`absolute right-0 top-12 w-56 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-lg shadow-lg z-50`}
+                  className={`absolute right-0 top-14 w-64 rounded-3xl shadow-tesla z-50 animate-slide-down ${
+                    theme === 'dark' 
+                      ? 'bg-gray-900/95 backdrop-blur-xl border border-white/20' 
+                      : 'bg-white/95 backdrop-blur-xl border border-black/10'
+                  } overflow-hidden`}
                   role="menu"
                   aria-labelledby="menu-button"
                 >
-                  <div className={`p-3 border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
-                    <h3 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{t('menu.title')}</h3>
+                  <div className={`p-4 border-b ${
+                    theme === 'dark' ? 'border-white/10' : 'border-black/5'
+                  }`}>
+                    <h3 className={`font-bold text-lg tracking-tight ${
+                      theme === 'dark' ? 'text-white' : 'text-tesla-800'
+                    }`}>
+                      {t('menu.title')}
+                    </h3>
+                    <div className="mt-1 h-0.5 w-8 bg-gradient-to-r from-apple-400 to-apple-600 rounded-full"></div>
                   </div>
                   
-                  <div className="py-2">
+                  <div className="p-2">
                      {/* Drag Lock */}
                      <button
                        onClick={handleDragLockToggle}
-                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                       className={`w-full px-4 py-4 text-left flex items-center gap-4 rounded-2xl transition-all duration-300 group ${
+                         theme === 'dark' 
+                           ? 'hover:bg-white/10 text-white' 
+                           : 'hover:bg-black/5 text-tesla-800'
+                       }`}
                        role="menuitem"
                        aria-label={`${t('menu.dragLock')} - ${isDragLocked ? t('habits.orderLocked') : t('habits.orderUnlocked')}`}
                      >
-                       {isDragLocked ? 
-                         <Lock size={18} className="text-red-500" /> : 
-                         <Unlock size={18} className="text-green-500" />
-                       }
-                       <span>{t('menu.dragLock')}</span>
-                       <span className={`ml-auto text-sm ${isDragLocked ? 'text-red-500' : 'text-green-500'}`}>
-                         {isDragLocked ? t('habits.orderLocked') : t('habits.orderUnlocked')}
-                       </span>
+                       <div className={`p-2 rounded-xl ${
+                         isDragLocked 
+                           ? 'bg-red-500/20 text-red-400' 
+                           : 'bg-green-500/20 text-green-400'
+                       }`}>
+                         {isDragLocked ? 
+                           <Lock size={18} className="transition-transform group-hover:scale-110" /> : 
+                           <Unlock size={18} className="transition-transform group-hover:scale-110" />
+                         }
+                       </div>
+                       <div className="flex-1">
+                         <span className="font-medium">{t('menu.dragLock')}</span>
+                         <div className={`text-sm mt-0.5 ${
+                           isDragLocked ? 'text-red-400' : 'text-green-400'
+                         }`}>
+                           {isDragLocked ? t('habits.orderLocked') : t('habits.orderUnlocked')}
+                         </div>
+                       </div>
                      </button>
 
                     {/* Notifications */}
                     <button
                       onClick={handleNotificationSettings}
-                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      className={`w-full px-4 py-4 text-left flex items-center gap-4 rounded-2xl transition-all duration-300 group ${
+                        theme === 'dark' 
+                          ? 'hover:bg-white/10 text-white' 
+                          : 'hover:bg-black/5 text-tesla-800'
+                      }`}
                       role="menuitem"
                       aria-label={t('menu.notifications')}
                     >
-                      <Bell size={18} className="text-yellow-500" />
-                      <span>{t('menu.notifications')}</span>
+                      <div className="p-2 rounded-xl bg-yellow-500/20 text-yellow-400">
+                        <Bell size={18} className="transition-transform group-hover:scale-110" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="font-medium">{t('menu.notifications')}</span>
+                      </div>
                     </button>
 
                     {/* Theme */}
                     <button
                       onClick={handleThemeToggle}
-                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      className={`w-full px-4 py-4 text-left flex items-center gap-4 rounded-2xl transition-all duration-300 group ${
+                        theme === 'dark' 
+                          ? 'hover:bg-white/10 text-white' 
+                          : 'hover:bg-black/5 text-tesla-800'
+                      }`}
                       role="menuitem"
                       aria-label={`${t('menu.theme')} - ${theme === 'dark' ? t('theme.dark') : t('theme.light')}`}
                     >
-                      {theme === 'dark' ? 
-                        <Sun size={18} className="text-orange-500" /> : 
-                        <Moon size={18} className="text-purple-500" />
-                      }
-                      <span>{t('menu.theme')}</span>
-                      <span className={`ml-auto text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                        {theme === 'dark' ? t('theme.dark') : t('theme.light')}
-                      </span>
+                      <div className={`p-2 rounded-xl ${
+                        theme === 'dark' 
+                          ? 'bg-orange-500/20 text-orange-400' 
+                          : 'bg-purple-500/20 text-purple-400'
+                      }`}>
+                        {theme === 'dark' ? 
+                          <Sun size={18} className="transition-transform group-hover:scale-110" /> : 
+                          <Moon size={18} className="transition-transform group-hover:scale-110" />
+                        }
+                      </div>
+                      <div className="flex-1">
+                        <span className="font-medium">{t('menu.theme')}</span>
+                        <div className={`text-sm mt-0.5 ${
+                          theme === 'dark' ? 'text-orange-400' : 'text-purple-400'
+                        }`}>
+                          {theme === 'dark' ? t('theme.dark') : t('theme.light')}
+                        </div>
+                      </div>
                     </button>
 
                     {/* Language */}
                     <button
                       onClick={handleLanguageChange}
-                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      className={`w-full px-4 py-4 text-left flex items-center gap-4 rounded-2xl transition-all duration-300 group ${
+                        theme === 'dark' 
+                          ? 'hover:bg-white/10 text-white' 
+                          : 'hover:bg-black/5 text-tesla-800'
+                      }`}
                       role="menuitem"
                       aria-label={`${t('menu.language')} - ${t('language') === 'pl' ? 'Polski' : 'English'}`}
                     >
-                      <Languages size={18} className="text-indigo-500" />
-                      <span>{t('menu.language')}</span>
-                      <span className={`ml-auto text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                        {t('language') === 'pl' ? 'Polski' : 'English'}
-                      </span>
+                      <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-400">
+                        <Languages size={18} className="transition-transform group-hover:scale-110" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="font-medium">{t('menu.language')}</span>
+                        <div className="text-sm mt-0.5 text-indigo-400">
+                          {t('language') === 'pl' ? 'Polski' : 'English'}
+                        </div>
+                      </div>
                     </button>
                   </div>
                 </div>
@@ -414,7 +530,7 @@ function AppContent() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-md mx-auto px-3 sm:px-4 py-4 sm:py-6">
+      <div className="max-w-md mx-auto px-3 sm:px-4 py-2 sm:py-3 h-[calc(100vh-160px)] overflow-y-auto">
         <HabitList
           habits={habits}
           statuses={statuses}
