@@ -12,6 +12,9 @@ interface HabitListProps {
   onUpdateHabit: (habitId: string, updates: Partial<Habit>) => void;
   onReorderHabits: (startIndex: number, endIndex: number) => void;
   isDragLocked?: boolean;
+  onArchiveHabit?: (habitId: string) => void;
+  onUnarchiveHabit?: (habitId: string) => void;
+  showArchivedView?: boolean;
 }
 
 const HabitList: React.FC<HabitListProps> = ({ 
@@ -21,7 +24,10 @@ const HabitList: React.FC<HabitListProps> = ({
   onDeleteHabit, 
   onUpdateHabit, 
   onReorderHabits,
-  isDragLocked = false
+  isDragLocked = false,
+  onArchiveHabit,
+  onUnarchiveHabit,
+  showArchivedView = false
 }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -41,15 +47,21 @@ const HabitList: React.FC<HabitListProps> = ({
           ? 'border-white/10 shadow-tesla' 
           : 'border-black/5 shadow-apple'
       }`}>
-        <div className="text-8xl mb-6 animate-bounce-subtle">🎯</div>
+        <div className="text-8xl mb-6 animate-bounce-subtle">
+          {showArchivedView ? '📦' : '🎯'}
+        </div>
         <h2 className={`text-2xl font-bold mb-3 ${
           theme === 'dark' 
             ? 'text-white bg-gradient-to-r from-apple-400 to-apple-600 bg-clip-text text-transparent' 
             : 'text-tesla-800 bg-gradient-to-r from-tesla-600 to-tesla-800 bg-clip-text text-transparent'
-        }`}>{t('habits.noHabitsYet')}</h2>
+        }`}>
+          {showArchivedView ? 'Brak zarchiwizowanych nawyków' : t('habits.noHabitsYet')}
+        </h2>
         <p className={`text-lg ${
           theme === 'dark' ? 'text-white/70' : 'text-tesla-600'
-        }`}>{t('habits.addFirstHabit')}</p>
+        }`}>
+          {showArchivedView ? 'Nawyki przeniesione do historii pojawią się tutaj' : t('habits.addFirstHabit')}
+        </p>
       </div>
     );
   }
@@ -223,6 +235,9 @@ const HabitList: React.FC<HabitListProps> = ({
             onStatusChange={onStatusChange}
             onDeleteHabit={onDeleteHabit}
             onUpdateHabit={onUpdateHabit}
+            onArchiveHabit={onArchiveHabit}
+            onUnarchiveHabit={onUnarchiveHabit}
+            showArchivedView={showArchivedView}
           />
         </div>
       ))}

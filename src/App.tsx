@@ -21,7 +21,7 @@ import HabitList from './components/HabitList';
 import AddHabitForm from './components/AddHabitForm';
 import NotificationSettings from './components/NotificationSettings';
 import Logo from './components/Logo';
-import { Plus, Moon, Sun, Languages, Bell, Lock, Unlock, Menu, X } from 'lucide-react';
+import { Plus, Moon, Sun, Languages, Bell, Lock, Unlock, Menu, X, Archive, ArchiveRestore } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import './i18n/config';
@@ -38,6 +38,7 @@ function AppContent() {
   const [showMenu, setShowMenu] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showArchivedHabits, setShowArchivedHabits] = useState(false);
 
   // Load data on mount
   useEffect(() => {
@@ -145,6 +146,26 @@ function AppContent() {
     ));
   };
 
+  const archiveHabit = (habitId: string) => {
+    setHabits(prev => prev.map(h => 
+      h.id === habitId ? { 
+        ...h, 
+        archived: true, 
+        archivedAt: new Date().toISOString() 
+      } : h
+    ));
+  };
+
+  const unarchiveHabit = (habitId: string) => {
+    setHabits(prev => prev.map(h => 
+      h.id === habitId ? { 
+        ...h, 
+        archived: false, 
+        archivedAt: undefined 
+      } : h
+    ));
+  };
+
   const reorderHabits = (startIndex: number, endIndex: number) => {
     if (isDragLocked) return; // Nie pozwalaj na przemieszczanie gdy zablokowane
     
@@ -210,6 +231,11 @@ function AppContent() {
     closeMenu();
   };
 
+  const handleToggleArchivedView = () => {
+    setShowArchivedHabits(prev => !prev);
+    closeMenu();
+  };
+
   const handleStatusChange = (habitId: string, date: string, newStatus: StatusType) => {
     const habit = habits.find(h => h.id === habitId);
     if (!habit) return;
@@ -230,7 +256,13 @@ function AppContent() {
   };
 
   const todayStr = formatDate(new Date());
-  const validHabitsToday = habits.filter(habit => isValidDay(habit, new Date()));
+  
+  // Filter habits based on current view (active or archived)
+  const filteredHabits = habits.filter(habit => 
+    showArchivedHabits ? habit.archived : !habit.archived
+  );
+  
+  const validHabitsToday = filteredHabits.filter(habit => isValidDay(habit, new Date()));
   const completedToday = validHabitsToday.filter(habit => {
     const status = getHabitStatusForDate(habit.id, todayStr, statuses);
     return status === 'completed';
@@ -340,7 +372,7 @@ function AppContent() {
                     ? 'from-white to-apple-200 text-transparent bg-clip-text' 
                     : 'from-tesla-800 to-tesla-600 text-transparent bg-clip-text'
                 }`}>
-                  {t('habits.title')}
+                  {showArchivedHabits ? 'Historia nawyków' : t('habits.title')}
                 </h1>
                 <div className="flex items-center gap-2 mt-1">
                   <div className={`h-2 w-2 rounded-full ${
@@ -351,7 +383,10 @@ function AppContent() {
                   <p className={`text-sm font-medium ${
                     theme === 'dark' ? 'text-apple-200' : 'text-tesla-600'
                   }`}>
-                    {completedToday} {t('habits.of')} {validHabitsToday.length} {t('habits.completed')}
+                    {showArchivedHabits 
+                      ? `${filteredHabits.length} zarchiwizowanych nawyków`
+                      : `${completedToday} ${t('habits.of')} ${validHabitsToday.length} ${t('habits.completed')}`
+                    }
                   </p>
                 </div>
               </div>
@@ -418,6 +453,39 @@ function AppContent() {
                   </div>
                   
                   <div className="p-2">
+                     {/* Archive Toggle */}
+                     <button
+                       onClick={handleToggleArchivedView}
+                       className={`w-full px-4 py-4 text-left flex items-center gap-4 rounded-2xl transition-all duration-300 group ${
+                         theme === 'dark' 
+                           ? 'hover:bg-white/10 text-white' 
+                           : 'hover:bg-black/5 text-tesla-800'
+                       }`}
+                       role="menuitem"
+                       aria-label={showArchivedHabits ? t('menu.showActive') : t('menu.showArchived')}
+                     >
+                       <div className={`p-2 rounded-xl ${
+                         showArchivedHabits 
+                           ? 'bg-green-500/20 text-green-400' 
+                           : 'bg-gray-500/20 text-gray-400'
+                       }`}>
+                         {showArchivedHabits ? 
+                           <ArchiveRestore size={18} className="transition-transform group-hover:scale-110" /> : 
+                           <Archive size={18} className="transition-transform group-hover:scale-110" />
+                         }
+                       </div>
+                       <div className="flex-1">
+                         <span className="font-medium">
+                           {showArchivedHabits ? 'Aktywne nawyki' : 'Historia nawyków'}
+                         </span>
+                         <div className={`text-sm mt-0.5 ${
+                           showArchivedHabits ? 'text-green-400' : 'text-gray-400'
+                         }`}>
+                           {showArchivedHabits ? 'Pokaż aktywne nawyki' : 'Pokaż zarchiwizowane nawyki'}
+                         </div>
+                       </div>
+                     </button>
+
                      {/* Drag Lock */}
                      <button
                        onClick={handleDragLockToggle}
@@ -532,7 +600,7 @@ function AppContent() {
       {/* Main Content */}
       <div className="w-full max-w-md mx-auto px-4 py-3 min-h-0 flex-1 overflow-y-auto overscroll-contain mobile-scroll">
         <HabitList
-          habits={habits}
+          habits={filteredHabits}
           statuses={statuses}
           onStatusChange={handleStatusChange}
           onDeleteHabit={deleteHabit}
@@ -540,6 +608,9 @@ function AppContent() {
           onReorderHabits={reorderHabits}
           isDragLocked={isDragLocked}
           className={theme === 'dark' ? 'bg-gray-800 text-white' : ''}
+          onArchiveHabit={archiveHabit}
+          onUnarchiveHabit={unarchiveHabit}
+          showArchivedView={showArchivedHabits}
         />
       </div>
 

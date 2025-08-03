@@ -6,7 +6,7 @@ import StatusPicker from './StatusPicker';
 import Toast from './Toast';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
-import { Trash2, Edit3, History, Calendar } from 'lucide-react';
+import { Trash2, Edit3, History, Calendar, Archive, ArchiveRestore } from 'lucide-react';
 import { showModernConfirm } from '../utils/modernDialogs';
 
 interface HabitHistoryEditorProps {
@@ -16,9 +16,12 @@ interface HabitHistoryEditorProps {
   onDeleteHabit: (habitId: string) => void;
   onClose: () => void;
   onUpdateHabit: (habitId: string, updates: Partial<Habit>) => void;
+  onArchiveHabit?: (habitId: string) => void;
+  onUnarchiveHabit?: (habitId: string) => void;
+  showArchivedView?: boolean;
 }
 
-const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses, onStatusChange, onDeleteHabit, onClose, onUpdateHabit }) => {
+const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses, onStatusChange, onDeleteHabit, onClose, onUpdateHabit, onArchiveHabit, onUnarchiveHabit, showArchivedView }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const [showToast, setShowToast] = useState(false);
@@ -65,6 +68,30 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
       setTimeout(() => {
         onClose();
       }, 500);
+    }
+  };
+
+  const handleArchiveHabit = async () => {
+    if (showArchivedView && onUnarchiveHabit) {
+      const confirmed = await showModernConfirm('Czy chcesz przywrócić ten nawyk?', 'Przywróć', 'Anuluj');
+      if (confirmed) {
+        onUnarchiveHabit(habit.id);
+        setToastMessage('Nawyk został przywrócony');
+        setShowToast(true);
+        setTimeout(() => {
+          onClose();
+        }, 500);
+      }
+    } else if (!showArchivedView && onArchiveHabit) {
+      const confirmed = await showModernConfirm('Czy chcesz przenieść ten nawyk do historii?', 'Archiwizuj', 'Anuluj');
+      if (confirmed) {
+        onArchiveHabit(habit.id);
+        setToastMessage('Nawyk został przeniesiony do historii');
+        setShowToast(true);
+        setTimeout(() => {
+          onClose();
+        }, 500);
+      }
     }
   };
 
@@ -553,6 +580,42 @@ const HabitHistoryEditor: React.FC<HabitHistoryEditorProps> = ({ habit, statuses
               </div>
             )}
           </div>
+          
+          {/* Archive/Unarchive Button */}
+          {(onArchiveHabit || onUnarchiveHabit) && (
+            <button
+              onClick={handleArchiveHabit}
+              className={`
+                relative w-full flex items-center justify-center gap-3 p-4 rounded-2xl font-semibold mb-4
+                transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group/archive overflow-hidden
+                ${showArchivedView
+                  ? theme === 'dark'
+                    ? 'bg-gradient-to-r from-green-600 via-green-500 to-green-600 hover:from-green-500 hover:to-green-700 text-white border border-green-400/30'
+                    : 'bg-gradient-to-r from-green-500 via-green-400 to-green-500 hover:from-green-400 hover:to-green-600 text-white border border-green-300/30'
+                  : theme === 'dark'
+                    ? 'bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white border border-orange-400/30'
+                    : 'bg-gradient-to-r from-orange-500 via-orange-400 to-orange-500 hover:from-orange-400 hover:to-orange-600 text-white border border-orange-300/30'
+                }
+                ${showArchivedView ? 'shadow-lg shadow-green-500/25' : 'shadow-lg shadow-orange-500/25'}
+              `}
+            >
+              {/* Ripple effect background */}
+              <div className={`absolute inset-0 bg-gradient-to-r opacity-0 group-hover/archive:opacity-100 transition-opacity duration-500 ${
+                showArchivedView 
+                  ? 'from-green-400/20 via-transparent to-green-400/20'
+                  : 'from-orange-400/20 via-transparent to-orange-400/20'
+              }`} />
+              
+              <div className="relative flex items-center gap-3">
+                <div className="group-hover/archive:scale-110 group-hover/archive:rotate-12 transition-transform duration-300">
+                  {showArchivedView ? <ArchiveRestore size={20} /> : <Archive size={20} />}
+                </div>
+                <span className="group-hover/archive:scale-105 transition-transform duration-200">
+                  {showArchivedView ? 'Przywróć' : 'Archiwizuj'}
+                </span>
+              </div>
+            </button>
+          )}
           
           {/* Delete Button */}
           <button

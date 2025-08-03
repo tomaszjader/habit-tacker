@@ -1,11 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { Habit, HabitStatus, StatusType } from '../types/habit';
-import { formatDate, isValidDay } from '../utils/storage';
-import { getHabitStatusForDate, getStatusDisplay } from '../utils/habitUtils';
+import { formatDate, isValidDay, getDateDaysAgo } from '../utils/storage';
+import { getHabitStatusForDate, getStatusDisplay, getDateLabel } from '../utils/habitUtils';
 import { triggerCelebration, celebrateStreak } from '../utils/celebrationEffects';
 import HabitHistoryEditor from './HabitHistoryEditor';
 import StatusPicker from './StatusPicker';
-import { Settings, GripVertical, Calendar, MoreVertical, Zap, TrendingUp, Target, Sparkles, Crown, Award, History } from 'lucide-react';
+import { Settings, GripVertical, Calendar, MoreVertical, Zap, TrendingUp, Target, Sparkles, Crown, Award, History, BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -15,13 +15,29 @@ interface HabitItemProps {
   onStatusChange: (habitId: string, date: string, status: StatusType) => void;
   onDeleteHabit: (habitId: string) => void;
   onUpdateHabit: (habitId: string, updates: Partial<Habit>) => void;
+  onArchiveHabit?: (habitId: string) => void;
+  onUnarchiveHabit?: (habitId: string) => void;
+  showArchivedView?: boolean;
 }
 
-const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, onDeleteHabit, onUpdateHabit }) => {
+type TabType = 'overview' | 'history' | 'settings';
+
+const HabitItem: React.FC<HabitItemProps> = ({ 
+  habit, 
+  statuses, 
+  onStatusChange, 
+  onDeleteHabit, 
+  onUpdateHabit, 
+  onArchiveHabit, 
+  onUnarchiveHabit, 
+  showArchivedView = false 
+}) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const [showHistory, setShowHistory] = useState(false);
   const [showStatusPicker, setShowStatusPicker] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [isExpanded, setIsExpanded] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const today = new Date();
   const todayStr = formatDate(today);
@@ -77,6 +93,38 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
 
   const handleHistoryStatusChange = (date: string, status: StatusType) => {
     onStatusChange(habit.id, date, status);
+  };
+
+  // Historia nawyku - ostatnie 7 dni
+  const habitHistory = useMemo(() => {
+    const history: Record<string, StatusType> = {};
+    statuses
+      .filter(status => status.habitId === habit.id)
+      .forEach(status => {
+        history[status.date] = status.status;
+      });
+    return history;
+  }, [statuses, habit.id]);
+
+  const historyDates = useMemo(() => {
+    return Array.from({ length: 7 }, (_, i) => {
+      const daysAgo = i;
+      const dateObj = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
+      return {
+        daysAgo,
+        date: getDateDaysAgo(daysAgo),
+        dateObj,
+        label: getDateLabel(daysAgo),
+        isValid: isValidDay(habit, dateObj)
+      };
+    });
+  }, [habit]);
+
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+    if (!isExpanded) {
+      setActiveTab('overview');
+    }
   };
 
   return (
@@ -419,123 +467,12 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
           </div>
         </div>
 
-        {/* Premium Weekly Schedule */}
-        <div className={`
-          relative p-5 rounded-3xl transition-all duration-700 hover:scale-[1.02] hover:-translate-y-1 mb-6 group/schedule
-          ${theme === 'dark' 
-            ? 'bg-gradient-to-br from-gray-800/60 via-gray-700/50 to-gray-800/60 border border-white/20 hover:border-white/30' 
-            : 'bg-gradient-to-br from-gray-50/90 via-white/80 to-gray-50/90 border border-gray-200/60 hover:border-gray-300/80'
-          }
-          backdrop-blur-xl shadow-lg hover:shadow-2xl relative z-10
-        `}>
-          {/* Floating particles */}
-          <div className="absolute top-3 right-4 w-0.5 h-0.5 rounded-full bg-purple-400/60 animate-particle-float" />
-          <div className="absolute bottom-4 left-6 w-1 h-1 rounded-full bg-blue-400/60 animate-particle-float" style={{ animationDelay: '2s' }} />
-          
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className={`
-                p-2 rounded-2xl transition-all duration-500 group-hover/schedule:scale-110 group-hover/schedule:rotate-12
-                ${theme === 'dark' ? 'bg-purple-500/20 text-purple-300' : 'bg-purple-100/80 text-purple-700'}
-                shadow-lg backdrop-blur-sm
-              `}>
-                <Calendar size={16} className="group-hover/schedule:animate-bounce" />
-              </div>
-              <span className={`text-sm font-bold tracking-wide ${
-                theme === 'dark' ? 'text-white/90' : 'text-gray-800'
-              }`}>
-                Harmonogram
-              </span>
-            </div>
-            
-            <div className={`
-              px-3 py-1.5 rounded-2xl text-sm font-bold transition-all duration-500 hover:scale-105
-              ${theme === 'dark' 
-                ? 'bg-gradient-to-r from-white/15 to-white/10 text-white/80 border border-white/20' 
-                : 'bg-gradient-to-r from-gray-100/80 to-gray-50/80 text-gray-700 border border-gray-200/60'
-              }
-              backdrop-blur-sm shadow-lg
-            `}>
-              {habit.validDays.length}/7
-            </div>
-          </div>
-          
-          <div className="weekly-schedule flex gap-3 justify-between">
-            {['N', 'P', 'W', 'Ś', 'C', 'P', 'S'].map((dayName, index) => (
-              <div key={index} className="flex flex-col items-center gap-2 group/day">
-                <div className={`text-xs font-bold tracking-wider ${
-                  theme === 'dark' ? 'text-white/60' : 'text-gray-500'
-                }`}>
-                  {dayName}
-                </div>
-                <div
-                  className={`
-                    day-indicator w-8 h-8 rounded-2xl flex items-center justify-center transition-all duration-500 
-                    hover:scale-125 hover:shadow-xl hover:-translate-y-1 cursor-pointer group-hover/day:rotate-12
-                    ${habit.validDays.includes(index) 
-                      ? theme === 'dark'
-                        ? 'bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30 border border-blue-400/30'
-                        : 'bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30 border border-blue-400/30'
-                      : theme === 'dark' 
-                        ? 'bg-gradient-to-br from-gray-700/60 to-gray-600/60 text-white/40 border border-white/10 hover:border-white/20' 
-                        : 'bg-gradient-to-br from-gray-200/80 to-gray-100/80 text-gray-400 border border-gray-300/50 hover:border-gray-400/60'
-                    }
-                    backdrop-blur-sm relative overflow-hidden
-                  `}
-                  title={t(`habits.days.${index}`)}
-                >
-                  {habit.validDays.includes(index) ? (
-                    <div className="relative">
-                      <div className="w-3 h-3 rounded-full bg-white/95 shadow-lg" />
-                      <div className="absolute inset-0 w-3 h-3 rounded-full bg-white/50 animate-ping" />
-                    </div>
-                  ) : (
-                    <div className={`w-2 h-2 rounded-full ${
-                      theme === 'dark' ? 'bg-white/20' : 'bg-gray-400/50'
-                    }`} />
-                  )}
-                  
-                  {/* Shimmer effect for active days */}
-                  {habit.validDays.includes(index) && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover/day:opacity-100 transition-opacity duration-500" />
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          {/* Ambient glow */}
-          <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-purple-500/15 to-blue-500/15 opacity-0 group-hover/schedule:opacity-100 transition-opacity duration-700 blur-xl -z-10" />
-        </div>
 
-        {/* Premium Action Buttons */}
+
+        {/* Expand/Collapse Button */}
         <div className="action-buttons flex gap-4">
           <button
-            onClick={() => setShowHistory(true)}
-            className={`
-              action-button group/btn flex-1 flex items-center justify-center gap-3 py-4 px-5 rounded-3xl font-bold transition-all duration-500 
-              hover:scale-105 hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden
-              ${theme === 'dark' 
-                ? 'bg-gradient-to-br from-gray-700/60 via-gray-600/50 to-gray-700/60 text-white/90 hover:from-gray-600/70 hover:to-gray-500/70 border border-white/20 hover:border-white/30' 
-                : 'bg-gradient-to-br from-gray-100/90 via-white/80 to-gray-100/90 text-gray-800 hover:from-gray-200/95 hover:to-gray-50/95 border border-gray-200/60 hover:border-gray-300/80'
-              }
-              backdrop-blur-xl shadow-lg
-            `}
-          >
-            <div className={`
-              p-1.5 rounded-2xl transition-all duration-500 group-hover/btn:scale-110 group-hover/btn:rotate-12
-              ${theme === 'dark' ? 'bg-white/10 text-white/80' : 'bg-gray-200/60 text-gray-700'}
-            `}>
-              <Calendar size={16} className="group-hover/btn:animate-bounce" />
-            </div>
-            <span className="text-sm tracking-wide">Historia</span>
-            
-            {/* Shimmer effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 -skew-x-12" />
-          </button>
-          
-          <button
-            onClick={() => setShowStatusPicker(true)}
+            onClick={toggleExpanded}
             className={`
               action-button group/btn flex-1 flex items-center justify-center gap-3 py-4 px-5 rounded-3xl font-bold transition-all duration-500 
               hover:scale-105 hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden
@@ -550,9 +487,9 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
               p-1.5 rounded-2xl transition-all duration-500 group-hover/btn:scale-110 group-hover/btn:rotate-12
               ${theme === 'dark' ? 'bg-white/20 text-white/90' : 'bg-white/30 text-white'}
             `}>
-              <Settings size={16} className="group-hover/btn:animate-spin" />
+              <BarChart3 size={16} className={`group-hover/btn:animate-bounce transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
             </div>
-            <span className="text-sm tracking-wide">Status</span>
+            <span className="text-sm tracking-wide">{isExpanded ? 'Zwiń' : 'Rozwiń'}</span>
             
             {/* Shimmer effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 -skew-x-12" />
@@ -561,6 +498,189 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
             <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 blur-lg -z-10" />
           </button>
         </div>
+
+        {/* Expanded Content with Tabs */}
+        {isExpanded && (
+          <div className={`
+            mt-6 rounded-3xl overflow-hidden transition-all duration-500 animate-slide-down
+            ${theme === 'dark' 
+              ? 'bg-gradient-to-br from-gray-800/60 via-gray-700/50 to-gray-800/60 border border-white/20' 
+              : 'bg-gradient-to-br from-white/80 via-gray-50/70 to-white/80 border border-black/10'
+            }
+            backdrop-blur-xl shadow-lg
+          `}>
+            {/* Tab Navigation */}
+            <div className={`flex border-b ${theme === 'dark' ? 'border-white/10' : 'border-black/5'}`}>
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`
+                  flex-1 flex items-center justify-center gap-2 py-4 px-4 font-medium transition-all duration-300
+                  ${activeTab === 'overview' 
+                    ? theme === 'dark' 
+                      ? 'bg-blue-600/30 text-blue-300 border-b-2 border-blue-400' 
+                      : 'bg-blue-100/80 text-blue-700 border-b-2 border-blue-500'
+                    : theme === 'dark' 
+                      ? 'text-gray-400 hover:text-gray-200 hover:bg-white/5' 
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-black/5'
+                  }
+                `}
+              >
+                <Target size={16} />
+                <span className="text-sm">Przegląd</span>
+              </button>
+              
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`
+                  flex-1 flex items-center justify-center gap-2 py-4 px-4 font-medium transition-all duration-300
+                  ${activeTab === 'history' 
+                    ? theme === 'dark' 
+                      ? 'bg-green-600/30 text-green-300 border-b-2 border-green-400' 
+                      : 'bg-green-100/80 text-green-700 border-b-2 border-green-500'
+                    : theme === 'dark' 
+                      ? 'text-gray-400 hover:text-gray-200 hover:bg-white/5' 
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-black/5'
+                  }
+                `}
+              >
+                <History size={16} />
+                <span className="text-sm">Historia</span>
+              </button>
+              
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`
+                  flex-1 flex items-center justify-center gap-2 py-4 px-4 font-medium transition-all duration-300
+                  ${activeTab === 'settings' 
+                    ? theme === 'dark' 
+                      ? 'bg-purple-600/30 text-purple-300 border-b-2 border-purple-400' 
+                      : 'bg-purple-100/80 text-purple-700 border-b-2 border-purple-500'
+                    : theme === 'dark' 
+                      ? 'text-gray-400 hover:text-gray-200 hover:bg-white/5' 
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-black/5'
+                  }
+                `}
+              >
+                <Settings size={16} />
+                <span className="text-sm">Status</span>
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            <div className="p-6">
+              {activeTab === 'overview' && (
+                <div className="space-y-4">
+                  <h4 className={`font-semibold text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+                    Przegląd nawyku
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className={`p-4 rounded-2xl ${theme === 'dark' ? 'bg-white/5' : 'bg-black/5'}`}>
+                      <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Ukończone dzisiaj
+                      </div>
+                      <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                        {currentStatus === 'completed' ? '✅' : currentStatus === 'partial' ? '🟡' : currentStatus === 'failed' ? '❌' : '⚪'}
+                      </div>
+                    </div>
+                    <div className={`p-4 rounded-2xl ${theme === 'dark' ? 'bg-white/5' : 'bg-black/5'}`}>
+                      <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Dni w tygodniu
+                      </div>
+                      <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                        {habit.validDays.length}/7
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'history' && (
+                <div className="space-y-4">
+                  <h4 className={`font-semibold text-lg flex items-center gap-2 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+                    <History size={18} className={theme === 'dark' ? 'text-green-300' : 'text-green-600'} />
+                    Historia ostatnich 7 dni
+                  </h4>
+                  <div className="space-y-3">
+                    {historyDates.map(({ date, dateObj, label, isValid }) => {
+                      if (!isValid) return null;
+                      
+                      const status = habitHistory[date] || 'none';
+                      
+                      return (
+                        <div
+                          key={date}
+                          className={`
+                            flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group/history
+                            ${theme === 'dark' 
+                              ? 'bg-white/5 hover:bg-white/10 border border-white/10' 
+                              : 'bg-black/5 hover:bg-black/10 border border-black/10'
+                            }
+                          `}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`
+                              w-3 h-3 rounded-full transition-all duration-300
+                              ${status === 'completed' ? 'bg-green-500' : 
+                                status === 'partial' ? 'bg-yellow-500' : 
+                                status === 'failed' ? 'bg-red-500' : 
+                                theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'
+                              }
+                            `} />
+                            <div>
+                              <div className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                                {label}
+                              </div>
+                              <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                                {dateObj.toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'short' })}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="group-hover/history:scale-105 transition-transform duration-200">
+                            <StatusPicker
+                              currentStatus={status}
+                              onStatusChange={(newStatus) => handleHistoryStatusChange(date, newStatus)}
+                              isValidDay={true}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'settings' && (
+                <div className="space-y-4">
+                  <h4 className={`font-semibold text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+                    Zmień status dzisiaj
+                  </h4>
+                  <div className={`p-4 rounded-2xl ${theme === 'dark' ? 'bg-white/5' : 'bg-black/5'}`}>
+                    <StatusPicker
+                      currentStatus={currentStatus}
+                      onStatusChange={handleStatusChange}
+                      isValidDay={isValidToday}
+                    />
+                  </div>
+                  
+                  <button
+                    onClick={() => setShowHistory(true)}
+                    className={`
+                      w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl font-medium transition-all duration-300
+                      ${theme === 'dark' 
+                        ? 'bg-blue-600/20 text-blue-300 hover:bg-blue-600/30 border border-blue-400/30' 
+                        : 'bg-blue-100/80 text-blue-700 hover:bg-blue-200/80 border border-blue-300/50'
+                      }
+                    `}
+                  >
+                    <Settings size={16} />
+                    Zaawansowane ustawienia
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         
         {/* Premium Status Picker Dropdown */}
         {showStatusPicker && (
@@ -609,6 +729,9 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
           onDeleteHabit={onDeleteHabit}
           onClose={() => setShowHistory(false)}
           onUpdateHabit={onUpdateHabit}
+          onArchiveHabit={onArchiveHabit}
+          onUnarchiveHabit={onUnarchiveHabit}
+          showArchivedView={showArchivedView}
         />
       )}
     </>
