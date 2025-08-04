@@ -291,7 +291,7 @@ function AppContent() {
   }
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`}>
+    <div className={`min-h-screen flex flex-col ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`}>
       {/* Header */}
       <div className={`sticky top-0 z-40 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} shadow-sm border-b backdrop-blur-sm bg-opacity-95`}>
         <div className="max-w-md mx-auto px-3 sm:px-4 py-4 sm:py-6">
@@ -414,17 +414,19 @@ function AppContent() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-md mx-auto px-3 sm:px-4 py-4 sm:py-6">
-        <HabitList
-          habits={habits}
-          statuses={statuses}
-          onStatusChange={handleStatusChange}
-          onDeleteHabit={deleteHabit}
-          onUpdateHabit={updateHabit}
-          onReorderHabits={reorderHabits}
-          isDragLocked={isDragLocked}
-          className={theme === 'dark' ? 'bg-gray-800 text-white' : ''}
-        />
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-md mx-auto px-3 sm:px-4 py-4 sm:py-6 pb-20">
+          <HabitList
+            habits={habits}
+            statuses={statuses}
+            onStatusChange={handleStatusChange}
+            onDeleteHabit={deleteHabit}
+            onUpdateHabit={updateHabit}
+            onReorderHabits={reorderHabits}
+            isDragLocked={isDragLocked}
+            className={theme === 'dark' ? 'bg-gray-800 text-white' : ''}
+          />
+        </div>
       </div>
 
       {showAddForm && (

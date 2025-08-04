@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Habit, HabitStatus, StatusType } from '../types/habit';
 import { formatDate, isValidDay } from '../utils/storage';
 import { getHabitStatusForDate, getStatusDisplay } from '../utils/habitUtils';
@@ -23,6 +23,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
   const [showHistory, setShowHistory] = useState(false);
   const [showStatusPicker, setShowStatusPicker] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const today = new Date();
   const todayStr = formatDate(today);
   const currentStatus = getHabitStatusForDate(habit.id, todayStr, statuses);
@@ -33,6 +34,19 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
     if (!isValidToday) return;
     setShowStatusPicker(!showStatusPicker);
   };
+
+  // Scroll to ensure status picker is visible when opened
+  useEffect(() => {
+    if (showStatusPicker && containerRef.current) {
+      setTimeout(() => {
+        containerRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      }, 100);
+    }
+  }, [showStatusPicker]);
 
   const handleStatusChange = (newStatus: StatusType) => {
     if (!isValidToday || !buttonRef.current) return;
@@ -60,11 +74,14 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
 
   return (
     <>
-      <div className={`rounded-xl shadow-sm border p-3 sm:p-4 ${
-        theme === 'dark' 
-          ? 'bg-gray-800 border-gray-700' 
-          : 'bg-white border-gray-100'
-      }`}>
+      <div 
+        ref={containerRef}
+        className={`rounded-xl shadow-sm border p-3 sm:p-4 ${
+          theme === 'dark' 
+            ? 'bg-gray-800 border-gray-700' 
+            : 'bg-white border-gray-100'
+        }`}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <div 
@@ -162,7 +179,7 @@ const HabitItem: React.FC<HabitItemProps> = ({ habit, statuses, onStatusChange, 
         
         {/* Status Picker Dropdown */}
         {showStatusPicker && isValidToday && (
-          <div className={`mt-4 p-4 rounded-lg border ${
+          <div className={`relative mt-4 p-4 rounded-lg border shadow-lg z-50 ${
             theme === 'dark' 
               ? 'bg-gray-700 border-gray-600' 
               : 'bg-gray-50 border-gray-200'
