@@ -367,7 +367,7 @@ function AppContent() {
                 <div className="absolute inset-0 bg-gradient-to-r from-apple-400 to-apple-600 rounded-full opacity-20 animate-pulse"></div>
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className={`text-lg font-bold tracking-tight truncate bg-gradient-to-r ${
+                <h1 className={`text-lg font-bold tracking-tight break-words leading-tight bg-gradient-to-r ${
                   theme === 'dark' 
                     ? 'from-white to-apple-200 text-transparent bg-clip-text' 
                     : 'from-tesla-800 to-tesla-600 text-transparent bg-clip-text'
