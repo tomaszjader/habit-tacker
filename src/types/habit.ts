@@ -7,8 +7,6 @@ export interface Habit {
   bestStreak: number; // Największa seria sukcesów
   emergencyHabitText?: string; // Tekst nawyku awaryjnego (np. łatwiejsza wersja)
   order: number; // Kolejność wyświetlania nawyku
-  archived?: boolean; // Czy nawyk jest w historii
-  archivedAt?: string; // Data przeniesienia do historii
 }
 
 export interface HabitStatus {

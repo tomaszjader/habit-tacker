@@ -325,13 +325,13 @@ export const celebrateStreak = (streakCount: number, element: HTMLElement) => {
       // Extra confetti burst
       setTimeout(() => createConfetti(element), 300);
       
-      // Show enhanced streak message with modern glass morphism design
+      // Show enhanced streak message with animation
       const message = document.createElement('div');
       message.innerHTML = `
         <div style="text-align: center;">
-          <div style="font-size: 32px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.8));">🔥🔥🔥</div>
-          <div style="font-size: 22px; font-weight: 700; margin-bottom: 8px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">${streakCount} dni z rzędu!</div>
-          <div style="font-size: 16px; opacity: 0.9; font-weight: 500;">Niesamowite osiągnięcie! 🎉</div>
+          <div style="font-size: 24px; margin-bottom: 8px;">🔥🔥🔥</div>
+          <div style="font-size: 18px; font-weight: bold;">${streakCount} dni z rzędu!</div>
+          <div style="font-size: 14px; opacity: 0.9; margin-top: 4px;">Niesamowite!</div>
         </div>
       `;
       message.style.cssText = `
@@ -339,18 +339,14 @@ export const celebrateStreak = (streakCount: number, element: HTMLElement) => {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(24px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 32px 40px;
-        border-radius: 24px;
+        padding: 24px 32px;
+        border-radius: 20px;
         z-index: 10000;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.3);
         animation: streak-celebration-enhanced 4s ease-out forwards;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        max-width: 90vw;
+        border: 3px solid rgba(255, 255, 255, 0.3);
       `;
       
       document.body.appendChild(message);
@@ -362,39 +358,27 @@ export const celebrateStreak = (streakCount: number, element: HTMLElement) => {
       }, 4000);
     }, 500);
   } else if (streakCount > 0 && streakCount % 3 === 0) {
-    // Mini celebration for every 3 days with modern design
+    // Mini celebration for every 3 days
     setTimeout(() => {
       vibratePattern([50, 30, 50]);
       createFireEffect(element);
       
       const miniMessage = document.createElement('div');
-      miniMessage.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 20px; filter: drop-shadow(0 0 8px rgba(255, 165, 0, 0.8));">🔥</span>
-          <span style="font-weight: 600; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">${streakCount} dni!</span>
-        </div>
-      `;
+      miniMessage.textContent = `🔥 ${streakCount} dni!`;
       miniMessage.style.cssText = `
         position: absolute;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 16px;
-        padding: 12px 16px;
         font-size: 16px;
-        font-weight: 600;
-        color: white;
+        font-weight: bold;
+        color: #ff6b35;
         pointer-events: none;
         z-index: 1000;
         animation: mini-celebration 2s ease-out forwards;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
       `;
       
       const rect = element.getBoundingClientRect();
       miniMessage.style.left = `${rect.left + rect.width / 2}px`;
-      miniMessage.style.top = `${rect.top - 50}px`;
+      miniMessage.style.top = `${rect.top - 30}px`;
       miniMessage.style.transform = 'translateX(-50%)';
       
       document.body.appendChild(miniMessage);

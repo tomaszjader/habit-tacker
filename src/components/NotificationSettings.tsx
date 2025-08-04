@@ -11,7 +11,6 @@ import {
   clearScheduledNotifications,
   clearAllNotifications
 } from '../utils/notifications';
-import { showModernAlert, showModernConfirm } from '../utils/modernDialogs';
 
 interface NotificationSettingsProps {
   onClose: () => void;
@@ -31,7 +30,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ on
     if (!settings.enabled) {
       const hasPermission = await requestNotificationPermission();
       if (!hasPermission) {
-        await showModernAlert(t('notifications.permissionDenied'), 'error');
+        alert(t('notifications.permissionDenied'));
         return;
       }
       setPermissionStatus('granted');
@@ -58,16 +57,15 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ on
     }
   };
 
-  const handleClearAllNotifications = async () => {
-    const confirmed = await showModernConfirm(t('notifications.clearAllConfirm'));
-    if (confirmed) {
+  const handleClearAllNotifications = () => {
+    if (window.confirm(t('notifications.clearAllConfirm'))) {
       clearAllNotifications();
       setSettings({
         enabled: false,
         morningTime: '08:00',
         eveningTime: '20:00'
       });
-      await showModernAlert(t('notifications.cleared'), 'success');
+      alert(t('notifications.cleared'));
     }
   };
 
