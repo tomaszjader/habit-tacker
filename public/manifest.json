@@ -2,6 +2,7 @@
   "name": "Habit Tracker - Śledzenie Nawyków",
   "short_name": "Nawyki",
   "description": "Śledź swoje codzienne nawyki i buduj lepsze rutyny",
+  "version": "1.6.0",
   "start_url": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
