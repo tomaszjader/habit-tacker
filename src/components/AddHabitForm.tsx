@@ -25,10 +25,45 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
     );
   };
 
+  const validateHabitName = (habitName: string): boolean => {
+    const trimmed = habitName.trim();
+    
+    // Check if name is empty
+    if (!trimmed) return false;
+    
+    // Check minimum length
+    if (trimmed.length < 2) return false;
+    
+    // Check maximum length
+    if (trimmed.length > 100) return false;
+    
+    // Check for suspicious patterns that might be error messages or system text
+    const suspiciousPatterns = [
+      /serwer/i,
+      /server/i,
+      /port/i,
+      /localhost/i,
+      /http/i,
+      /error/i,
+      /błąd/i,
+      /status/i,
+      /sprawdz/i,
+      /check/i,
+      /uruchom/i,
+      /start/i,
+      /podgląd/i,
+      /preview/i
+    ];
+    
+    return !suspiciousPatterns.some(pattern => pattern.test(trimmed));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim() && validDays.length > 0) {
-      onAddHabit({ name: name.trim(), validDays });
+    const trimmedName = name.trim();
+    
+    if (validateHabitName(trimmedName) && validDays.length > 0) {
+      onAddHabit({ name: trimmedName, validDays });
       setName('');
       setValidDays([1, 2, 3, 4, 5]);
       onClose();
@@ -140,7 +175,7 @@ const AddHabitForm: React.FC<AddHabitFormProps> = ({ onAddHabit, onClose }) => {
             </button>
             <button
               type="submit"
-              disabled={!name.trim() || validDays.length === 0}
+              disabled={!validateHabitName(name) || validDays.length === 0}
               className="flex-1 py-3 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
             >
               {t('habits.save')}

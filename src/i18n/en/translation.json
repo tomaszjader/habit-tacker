@@ -87,6 +87,31 @@
     "notifications": "Notifications",
     "theme": "Change theme",
     "language": "Change language",
-    "dragLock": "Order lock"
+    "dragLock": "Order lock",
+    "importExport": "Import/Export",
+    "clearData": "Clear data"
+  },
+  "importExport": {
+    "title": "Import/Export Data",
+    "export": "Export Data",
+    "import": "Import Data",
+    "exportDescription": "Download a backup of your habits and progress",
+    "importDescription": "Load data from a backup file",
+    "exportSuccess": "Data has been exported",
+    "importSuccess": "Data has been imported successfully",
+    "importError": "Error importing data",
+    "invalidFile": "Invalid data file",
+    "selectFile": "Select file",
+    "importing": "Importing",
+    "confirmImport": "Are you sure you want to import data? Current data will be replaced.",
+    "fileFormat": "File format: JSON",
+    "dataIncluded": "Data includes: habits, progress, settings"
+  },
+  "clearData": {
+    "title": "Clear All Data",
+    "description": "This action will remove all habits, progress and settings",
+    "confirm": "Are you sure you want to delete all data? This action cannot be undone.",
+    "success": "All data has been cleared",
+    "button": "Clear Everything"
   }
 }

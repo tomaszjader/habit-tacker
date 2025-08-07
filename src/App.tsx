@@ -6,7 +6,8 @@ import {
   loadHabitStatuses, 
   saveHabitStatuses,
   formatDate,
-  isValidDay
+  isValidDay,
+  clearAllData
 } from './utils/storage';
 import { updateSuccessCount, getHabitStatusForDate } from './utils/habitUtils';
 import {
@@ -20,8 +21,9 @@ import { createConfetti, playSuccessSound } from './utils/celebrationEffects';
 import HabitList from './components/HabitList';
 import AddHabitForm from './components/AddHabitForm';
 import NotificationSettings from './components/NotificationSettings';
+import ImportExportModal from './components/ImportExportModal';
 import Logo from './components/Logo';
-import { Plus, Moon, Sun, Languages, Bell, Lock, Unlock, Menu, X } from 'lucide-react';
+import { Plus, Moon, Sun, Languages, Bell, Lock, Unlock, Menu, X, Database, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import './i18n/config';
@@ -34,6 +36,7 @@ function AppContent() {
   const [statuses, setStatuses] = useState<HabitStatus[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+  const [showImportExport, setShowImportExport] = useState(false);
   const [isDragLocked, setIsDragLocked] = useState(true); // Domyślnie zablokowane
   const [showMenu, setShowMenu] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -210,6 +213,31 @@ function AppContent() {
     closeMenu();
   };
 
+  const handleImportExport = () => {
+    setShowImportExport(true);
+    closeMenu();
+  };
+
+  const handleImportData = (importedHabits: Habit[], importedStatuses: HabitStatus[]) => {
+    setHabits(importedHabits);
+    setStatuses(importedStatuses);
+  };
+
+  const handleClearData = () => {
+    if (window.confirm(t('clearData.confirm'))) {
+      clearAllData();
+      setHabits([]);
+      setStatuses([]);
+      setShowMenu(false);
+      
+      // Show success message
+      const event = new CustomEvent('showToast', {
+        detail: { message: t('clearData.success'), type: 'success' }
+      });
+      window.dispatchEvent(event);
+    }
+  };
+
   const handleStatusChange = (habitId: string, date: string, newStatus: StatusType) => {
     const habit = habits.find(h => h.id === habitId);
     if (!habit) return;
@@ -363,6 +391,28 @@ function AppContent() {
                        </span>
                      </button>
 
+                    {/* Import/Export */}
+                    <button
+                      onClick={handleImportExport}
+                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      role="menuitem"
+                      aria-label={t('menu.importExport')}
+                    >
+                      <Database size={18} className="text-purple-500" />
+                      <span>{t('menu.importExport')}</span>
+                    </button>
+
+                    {/* Clear Data */}
+                    <button
+                      onClick={handleClearData}
+                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      role="menuitem"
+                      aria-label={t('menu.clearData')}
+                    >
+                      <Trash2 size={18} className="text-red-500" />
+                      <span>{t('menu.clearData')}</span>
+                    </button>
+
                     {/* Notifications */}
                     <button
                       onClick={handleNotificationSettings}
@@ -439,6 +489,15 @@ function AppContent() {
       {showNotificationSettings && (
         <NotificationSettings
           onClose={() => setShowNotificationSettings(false)}
+        />
+      )}
+
+      {showImportExport && (
+        <ImportExportModal
+          onClose={() => setShowImportExport(false)}
+          habits={habits}
+          statuses={statuses}
+          onImportData={handleImportData}
         />
       )}
     </div>

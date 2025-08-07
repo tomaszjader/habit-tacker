@@ -54,3 +54,27 @@ export const isValidDay = (habit: Habit, date: Date): boolean => {
   const dayOfWeek = date.getDay();
   return habit.validDays.includes(dayOfWeek);
 };
+
+// Import/Export functions
+export const clearAllData = (): void => {
+  localStorage.removeItem(HABITS_KEY);
+  localStorage.removeItem(STATUS_KEY);
+};
+
+export const importData = (habits: Habit[], statuses: HabitStatus[]): void => {
+  // Clear existing data
+  clearAllData();
+  
+  // Import new data
+  saveHabits(habits);
+  saveHabitStatuses(statuses);
+};
+
+export const exportData = () => {
+  return {
+    habits: loadHabits(),
+    statuses: loadHabitStatuses(),
+    exportDate: new Date().toISOString(),
+    version: '1.0'
+  };
+};

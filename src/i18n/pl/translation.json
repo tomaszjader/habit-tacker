@@ -87,6 +87,31 @@
     "notifications": "Powiadomienia",
     "theme": "Zmień motyw",
     "language": "Zmień język",
-    "dragLock": "Blokada kolejności"
+    "dragLock": "Blokada kolejności",
+    "importExport": "Import/Eksport",
+    "clearData": "Wyczyść dane"
+  },
+  "importExport": {
+    "title": "Import/Eksport danych",
+    "export": "Eksportuj dane",
+    "import": "Importuj dane",
+    "exportDescription": "Pobierz kopię zapasową swoich nawyków i postępu",
+    "importDescription": "Wczytaj dane z pliku kopii zapasowej",
+    "exportSuccess": "Dane zostały wyeksportowane",
+    "importSuccess": "Dane zostały zaimportowane pomyślnie",
+    "importError": "Błąd podczas importu danych",
+    "invalidFile": "Nieprawidłowy plik danych",
+    "selectFile": "Wybierz plik",
+    "importing": "Importowanie",
+    "confirmImport": "Czy na pewno chcesz zaimportować dane? Obecne dane zostaną zastąpione.",
+    "fileFormat": "Format pliku: JSON",
+    "dataIncluded": "Dane zawierają: nawyki, postęp, ustawienia"
+  },
+  "clearData": {
+    "title": "Wyczyść wszystkie dane",
+    "description": "Ta akcja usunie wszystkie nawyki, postęp i ustawienia",
+    "confirm": "Czy na pewno chcesz usunąć wszystkie dane? Ta akcja jest nieodwracalna.",
+    "success": "Wszystkie dane zostały usunięte",
+    "button": "Wyczyść wszystko"
   }
 }
