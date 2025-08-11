@@ -92,38 +92,26 @@ export const testVibration = () => {
     return false;
   }
   
-  // NAJPROSTSZY TEST - bez żadnych dodatkowych warunków
+  // NAJPROSTSZY TEST - natychmiastowe wykonanie
   try {
-    console.log('📳 PROSTY TEST: Bezpośrednie wywołanie navigator.vibrate(500)...');
+    console.log('📳 PROSTY TEST: Bezpośrednie wywołanie navigator.vibrate(1000)...');
     
     // Najpierw spróbuj zatrzymać wszystkie wibracje
     navigator.vibrate(0);
     console.log('📳 Zatrzymano poprzednie wibracje');
     
-    // Teraz spróbuj prostej wibracji
-    const result1 = navigator.vibrate(500);
-    console.log('📳 Test 1 - navigator.vibrate(500):', result1);
+    // Teraz spróbuj długiej wibracji (1 sekunda)
+    const result = navigator.vibrate(1000);
+    console.log('📳 navigator.vibrate(1000) wynik:', result);
     
-    setTimeout(() => {
-      console.log('📳 Test 2 - navigator.vibrate([200, 100, 200])...');
-      const result2 = navigator.vibrate([200, 100, 200]);
-      console.log('📳 Test 2 wynik:', result2);
-    }, 1000);
-    
-    setTimeout(() => {
-      console.log('📳 Test 3 - navigator.vibrate(1000)...');
-      const result3 = navigator.vibrate(1000);
-      console.log('📳 Test 3 wynik:', result3);
-    }, 2500);
-    
-    if (result1) {
-      console.log('✅ Podstawowa wibracja powinna działać');
-      alert('✅ Test wibracji uruchomiony!\n\nWykonuję 3 testy wibracji:\n1. 500ms wibracja\n2. Wzór: 200ms-100ms-200ms\n3. 1000ms wibracja\n\nSprawdź czy czujesz wibracje!');
+    if (result) {
+      console.log('✅ Wibracja powinna być aktywna przez 1 sekundę');
+      alert('✅ Test wibracji uruchomiony!\n\nPowinieneś czuć wibrację przez 1 sekundę.\n\nJeśli nie czujesz:\n• Sprawdź ustawienia wibracji w telefonie\n• Sprawdź czy telefon nie jest w trybie cichym\n• Spróbuj funkcji testVibrateConsole() w konsoli');
       return true;
     } else {
       const errorMsg = '⚠️ navigator.vibrate() zwrócił false';
       console.warn(errorMsg);
-      alert(errorMsg + '\n\nNavigator.vibrate() zwrócił false.\nTo może oznaczać:\n• Brak uprawnień\n• Tryb cichy\n• Wyłączona wibracja w ustawieniach\n• Blokada przez przeglądarkę');
+      alert(errorMsg + '\n\nNavigator.vibrate() zwrócił false.\nTo może oznaczać:\n• Brak uprawnień\n• Tryb cichy\n• Wyłączona wibracja w ustawieniach\n• Blokada przez przeglądarkę\n\nSpróbuj testVibrateConsole() w konsoli');
       return false;
     }
   } catch (error) {

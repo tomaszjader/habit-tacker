@@ -229,8 +229,34 @@ function AppContent() {
     (window as any).testVibrateConsole = () => {
       console.log('🔧 Test wibracji z konsoli...');
       try {
-        const result = navigator.vibrate(300);
-        console.log('📳 Wynik:', result);
+        // Zatrzymaj poprzednie wibracje
+        navigator.vibrate(0);
+        console.log('📳 Zatrzymano poprzednie wibracje');
+        
+        // Test długiej wibracji
+        const result = navigator.vibrate(2000); // 2 sekundy
+        console.log('📳 navigator.vibrate(2000) wynik:', result);
+        
+        if (result) {
+          console.log('✅ Wibracja powinna trwać 2 sekundy');
+        } else {
+          console.log('❌ navigator.vibrate zwrócił false');
+        }
+        
+        return result;
+      } catch (e) {
+        console.error('❌ Błąd:', e);
+        return false;
+      }
+    };
+    
+    // Dodaj również funkcję do testowania wzorów
+    (window as any).testVibratePattern = () => {
+      console.log('🔧 Test wzoru wibracji z konsoli...');
+      try {
+        const pattern = [500, 200, 500, 200, 1000];
+        const result = navigator.vibrate(pattern);
+        console.log('📳 navigator.vibrate(' + JSON.stringify(pattern) + ') wynik:', result);
         return result;
       } catch (e) {
         console.error('❌ Błąd:', e);
@@ -254,8 +280,10 @@ function AppContent() {
     debugInfo += `📳 Vibration API:\n`;
     debugInfo += `• Dostępne: ${hasVibrationAPI ? 'TAK' : 'NIE'}\n\n`;
     
-    debugInfo += `🔧 DODATKOWY TEST:\n`;
-    debugInfo += `W konsoli wpisz: testVibrateConsole()\n`;
+    debugInfo += `🔧 DODATKOWE TESTY:\n`;
+    debugInfo += `W konsoli wpisz:\n`;
+    debugInfo += `• testVibrateConsole() - test 2s\n`;
+    debugInfo += `• testVibratePattern() - test wzoru\n`;
     debugInfo += `Sprawdź czy to działa!`;
     
     alert(debugInfo);
@@ -267,17 +295,17 @@ function AppContent() {
     console.log('Platform:', platform);
     console.log('Czy jest Android?', isAndroid);
     console.log('Czy jest Chrome?', isChrome);
-    console.log('🔧 DODANO FUNKCJĘ: testVibrateConsole() - użyj w konsoli!');
+    console.log('🔧 DODANO FUNKCJE: testVibrateConsole() i testVibratePattern() - użyj w konsoli!');
     
     const result = testVibration();
     
     // Wyświetl wynik testu
     if (result) {
       console.log('✅ Test wibracji zakończony pomyślnie');
-      alert('✅ Test wibracji wykonany pomyślnie!\n\nJeśli nie poczułeś wibracji:\n• Sprawdź konsolę deweloperską\n• Wpisz: testVibrateConsole()\n• Sprawdź ustawienia telefonu');
+      alert('✅ Test wibracji wykonany pomyślnie!\n\nJeśli nie poczułeś wibracji:\n• Sprawdź konsolę deweloperską\n• Wpisz: testVibrateConsole() lub testVibratePattern()\n• Sprawdź ustawienia telefonu');
     } else {
       console.log('❌ Test wibracji nie powiódł się');
-      alert('❌ Test wibracji nie powiódł się!\n\nSpróbuj w konsoli:\n• Wpisz: testVibrateConsole()\n• Sprawdź czy to działa\n• Użyj "Wymuś aktualizację"');
+      alert('❌ Test wibracji nie powiódł się!\n\nSpróbuj w konsoli:\n• Wpisz: testVibrateConsole() lub testVibratePattern()\n• Sprawdź czy to działa\n• Użyj "Wymuś aktualizację"');
     }
     setShowMenu(false);
   };
