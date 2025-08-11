@@ -10,31 +10,106 @@ const initAudioContext = () => {
   return audioContext;
 };
 
-// Vibration patterns for different statuses (mobile only)
+// Enhanced vibration patterns for different statuses (mobile only)
 const vibratePattern = (pattern: number[]) => {
-  if ('vibrate' in navigator) {
-    navigator.vibrate(pattern);
+  try {
+    console.log('vibratePattern called with:', pattern);
+    console.log('Location:', location.href);
+    console.log('Protocol:', location.protocol);
+    console.log('Hostname:', location.hostname);
+    console.log('isSecureContext:', window.isSecureContext);
+    
+    // Check if vibration is supported
+    if (!('vibrate' in navigator)) {
+      console.log('Vibration API not supported');
+      return false;
+    }
+
+    // Allow vibration in secure contexts OR localhost (even HTTP)
+    const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    const isSecure = window.isSecureContext || location.protocol === 'https:';
+    
+    if (!isSecure && !isLocalhost) {
+      console.log('Vibration requires secure context (HTTPS) or localhost');
+      return false;
+    }
+
+    console.log('Attempting to vibrate with pattern:', pattern);
+    
+    // Try to vibrate
+    const result = navigator.vibrate(pattern);
+    console.log('Vibration triggered:', pattern, 'Result:', result);
+    return result;
+  } catch (error) {
+    console.error('Vibration error:', error);
+    return false;
   }
 };
 
+// Initialize vibration after user interaction (required on some Android devices)
+let vibrationInitialized = false;
+
+export const initializeVibration = () => {
+  if (!vibrationInitialized && 'vibrate' in navigator) {
+    try {
+      // Try a very short vibration to "wake up" the API
+      navigator.vibrate(1);
+      vibrationInitialized = true;
+      console.log('Vibration initialized successfully');
+      return true;
+    } catch (error) {
+      console.error('Failed to initialize vibration:', error);
+      return false;
+    }
+  }
+  return vibrationInitialized;
+};
+
+// Test vibration function for debugging
+export const testVibration = () => {
+  console.log('Testing vibration...');
+  console.log('Navigator vibrate available:', 'vibrate' in navigator);
+  console.log('Secure context:', window.isSecureContext);
+  console.log('Protocol:', location.protocol);
+  console.log('Vibration initialized:', vibrationInitialized);
+  
+  // Try to initialize first
+  initializeVibration();
+  
+  if ('vibrate' in navigator) {
+    try {
+      const result = navigator.vibrate(200);
+      console.log('Test vibration result:', result);
+      return result;
+    } catch (error) {
+      console.error('Test vibration failed:', error);
+      return false;
+    }
+  }
+  return false;
+};
+
 export const triggerVibration = (status: StatusType) => {
+  console.log('Triggering vibration for status:', status);
+  
+  // Initialize vibration if not already done
+  initializeVibration();
+  
   switch (status) {
     case 'completed':
       // Triumphant vibration - short burst, pause, longer burst
-      vibratePattern([50, 50, 100, 50, 150]);
-      break;
+      return vibratePattern([100, 50, 150, 50, 200]);
     case 'partial':
       // Gentle encouraging vibration - two short pulses
-      vibratePattern([30, 30, 30]);
-      break;
+      return vibratePattern([50, 50, 50]);
     case 'failed':
       // Sympathetic vibration - one longer gentle pulse
-      vibratePattern([80]);
-      break;
+      return vibratePattern([100]);
     case 'not-applicable':
       // Very light feedback
-      vibratePattern([20]);
-      break;
+      return vibratePattern([30]);
+    default:
+      return false;
   }
 };
 

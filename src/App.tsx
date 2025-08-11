@@ -17,13 +17,13 @@ import {
   registerServiceWorker,
   requestNotificationPermission
 } from './utils/notifications';
-import { createConfetti, playSuccessSound } from './utils/celebrationEffects';
+import { createConfetti, playSuccessSound, testVibration, initializeVibration } from './utils/celebrationEffects';
 import HabitList from './components/HabitList';
 import AddHabitForm from './components/AddHabitForm';
 import NotificationSettings from './components/NotificationSettings';
 import ImportExportModal from './components/ImportExportModal';
 import Logo from './components/Logo';
-import { Plus, Moon, Sun, Languages, Bell, Lock, Unlock, Menu, X, Database, Trash2 } from 'lucide-react';
+import { Plus, Moon, Sun, Languages, Bell, Lock, Unlock, Menu, X, Database, Trash2, Smartphone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import './i18n/config';
@@ -60,6 +60,21 @@ function AppContent() {
     };
     
     loadData();
+    
+    // Initialize vibration on first user interaction
+    const handleFirstInteraction = () => {
+      initializeVibration();
+      document.removeEventListener('touchstart', handleFirstInteraction);
+      document.removeEventListener('click', handleFirstInteraction);
+    };
+    
+    document.addEventListener('touchstart', handleFirstInteraction, { once: true });
+    document.addEventListener('click', handleFirstInteraction, { once: true });
+    
+    return () => {
+      document.removeEventListener('touchstart', handleFirstInteraction);
+      document.removeEventListener('click', handleFirstInteraction);
+    };
   }, []);
 
   // Save data when it changes (but not on initial load)
@@ -195,6 +210,16 @@ function AppContent() {
 
   const handleLanguageChange = () => {
     changeLanguage(t('language') === 'pl' ? 'en' : 'pl');
+    closeMenu();
+  };
+
+  const handleTestVibration = () => {
+    const result = testVibration();
+    if (result) {
+      console.log('Test wibracji zakończony pomyślnie');
+    } else {
+      console.log('Test wibracji nie powiódł się');
+    }
     closeMenu();
   };
 
@@ -439,6 +464,17 @@ function AppContent() {
                       <span className={`ml-auto text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                         {theme === 'dark' ? t('theme.dark') : t('theme.light')}
                       </span>
+                    </button>
+
+                    {/* Test Vibration */}
+                    <button
+                      onClick={handleTestVibration}
+                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      role="menuitem"
+                      aria-label="Test wibracji"
+                    >
+                      <Smartphone size={18} className="text-pink-500" />
+                      <span>Test wibracji</span>
                     </button>
 
                     {/* Language */}
