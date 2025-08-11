@@ -10,10 +10,36 @@ const initAudioContext = () => {
   return audioContext;
 };
 
+// Device detection for special handling
+const detectDevice = () => {
+  const userAgent = navigator.userAgent;
+  const isXiaomi = /Xiaomi|Mi |Redmi|POCO/i.test(userAgent);
+  const isPoco = /POCO/i.test(userAgent);
+  const isMiui = /MIUI/i.test(userAgent);
+  const isAndroid = /Android/i.test(userAgent);
+  const isChrome = /Chrome/i.test(userAgent);
+  const isSamsung = /Samsung/i.test(userAgent);
+  const isHuawei = /Huawei|Honor/i.test(userAgent);
+  
+  return {
+    isXiaomi,
+    isPoco,
+    isMiui,
+    isAndroid,
+    isChrome,
+    isSamsung,
+    isHuawei,
+    userAgent
+  };
+};
+
 // Enhanced vibration patterns for different statuses (mobile only)
 const vibratePattern = (pattern: number[]) => {
   try {
+    const device = detectDevice();
+    
     console.log('🔧 vibratePattern called with:', pattern);
+    console.log('📱 Device detection:', device);
     console.log('📍 Location:', location.href);
     console.log('🔒 Protocol:', location.protocol);
     console.log('🌐 Hostname:', location.hostname);
@@ -34,44 +60,63 @@ const vibratePattern = (pattern: number[]) => {
       return false;
     }
 
+    // Special handling for Xiaomi/Poco devices
+    let adjustedPattern = [...pattern];
+    if (device.isXiaomi || device.isPoco || device.isMiui) {
+      console.log('🔧 Detected Xiaomi/Poco device - applying stronger vibration patterns');
+      // Make vibrations much longer and stronger for Xiaomi/Poco devices
+      adjustedPattern = pattern.map(duration => {
+        if (duration > 0) {
+          return Math.max(duration * 3, 1000); // At least 1 second, or 3x longer
+        }
+        return Math.max(duration, 200); // Longer pauses too
+      });
+      console.log('💪 Adjusted pattern for Xiaomi/Poco:', adjustedPattern);
+    }
+
     // Stop any existing vibrations first
     navigator.vibrate(0);
     console.log('🛑 Stopped existing vibrations');
     
-    // Small delay to ensure previous vibration stopped
-    setTimeout(() => {
-      console.log('📳 Attempting to vibrate with pattern:', pattern);
+    // Multiple attempts for problematic devices
+    const attemptVibration = (attemptPattern: number[], attemptNumber: number) => {
+      console.log(`📳 Attempt ${attemptNumber}: Vibrating with pattern:`, attemptPattern);
       
-      // Try to vibrate
-      const result = navigator.vibrate(pattern);
-      console.log('✅ Vibration triggered:', pattern, 'Result:', result);
+      const result = navigator.vibrate(attemptPattern);
+      console.log(`✅ Attempt ${attemptNumber} result:`, result);
       
-      // Additional verification - try to detect if vibration actually works
       if (result) {
         console.log('🎯 navigator.vibrate() returned true - vibration should be active');
         
-        // Check device capabilities
-        const userAgent = navigator.userAgent;
-        const isAndroid = /Android/i.test(userAgent);
-        const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
-        const isChrome = /Chrome/i.test(userAgent);
-        const isSafari = /Safari/i.test(userAgent) && !isChrome;
-        
-        console.log('📱 Device info: Android=' + isAndroid + ', iOS=' + isIOS + ', Chrome=' + isChrome + ', Safari=' + isSafari);
-        
-        if (isIOS && isSafari) {
-          console.log('⚠️ iOS Safari may not support vibration');
+        if (device.isPoco) {
+          console.log('🔥 POCO device detected - if you still don\'t feel vibration, check:');
+          console.log('   • Settings > Sound & vibration > Vibration intensity');
+          console.log('   • Settings > Apps > [Browser] > Permissions');
+          console.log('   • Try different browsers (Chrome, Firefox, Edge)');
+          console.log('   • Disable battery optimization for browser');
         }
         
-        if (isAndroid && !isChrome) {
-          console.log('⚠️ Android non-Chrome browser - vibration support may be limited');
+        if (device.isXiaomi || device.isMiui) {
+          console.log('📱 Xiaomi/MIUI device - additional tips:');
+          console.log('   • Settings > Additional settings > Accessibility > Vibration');
+          console.log('   • Settings > Battery & performance > App battery saver');
+          console.log('   • Developer options > Disable HW overlays');
         }
       } else {
         console.log('❌ navigator.vibrate() returned false - vibration blocked or not supported');
+        
+        if (attemptNumber < 3) {
+          // Try again with even stronger pattern
+          const strongerPattern = attemptPattern.map(d => d > 0 ? d * 2 : d);
+          setTimeout(() => attemptVibration(strongerPattern, attemptNumber + 1), 500);
+        }
       }
       
       return result;
-    }, 10);
+    };
+    
+    // Start vibration attempts
+    setTimeout(() => attemptVibration(adjustedPattern, 1), 50);
     
     return true; // Return true immediately, actual result will be logged
   } catch (error) {
@@ -189,23 +234,48 @@ export const triggerVibration = (status: StatusType) => {
   // Initialize vibration if not already done
   initializeVibration();
   
+  // Detect if this is a Poco/Xiaomi device for extra strong patterns
+  const device = detectDevice();
+  const needsStrongPattern = device.isPoco || device.isXiaomi || device.isMiui;
+  
+  if (needsStrongPattern) {
+    console.log('💪 Using EXTRA STRONG patterns for Poco/Xiaomi device');
+  }
+  
   switch (status) {
     case 'completed':
       // Triumphant vibration - longer, more noticeable pattern
       console.log('🎉 Playing COMPLETED vibration pattern');
-      return vibratePattern([300, 100, 300, 100, 500]);
+      if (needsStrongPattern) {
+        // Extra strong pattern for Poco: very long vibrations
+        return vibratePattern([1500, 300, 1500, 300, 2000]);
+      } else {
+        return vibratePattern([500, 150, 500, 150, 800]);
+      }
     case 'partial':
       // Gentle encouraging vibration - two medium pulses
       console.log('👍 Playing PARTIAL vibration pattern');
-      return vibratePattern([200, 100, 200]);
+      if (needsStrongPattern) {
+        return vibratePattern([1000, 300, 1000]);
+      } else {
+        return vibratePattern([400, 200, 400]);
+      }
     case 'failed':
       // Sympathetic vibration - one longer gentle pulse
       console.log('😔 Playing FAILED vibration pattern');
-      return vibratePattern([400]);
+      if (needsStrongPattern) {
+        return vibratePattern([1200]);
+      } else {
+        return vibratePattern([600]);
+      }
     case 'not-applicable':
       // Light feedback but still noticeable
       console.log('➖ Playing NOT-APPLICABLE vibration pattern');
-      return vibratePattern([150]);
+      if (needsStrongPattern) {
+        return vibratePattern([800]);
+      } else {
+        return vibratePattern([300]);
+      }
     default:
       console.log('❓ Unknown status, no vibration');
       return false;

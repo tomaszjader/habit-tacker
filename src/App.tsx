@@ -294,11 +294,21 @@ function AppContent() {
     (window as any).testAllVibrations = () => {
       console.log('🔧 Test wszystkich wzorów wibracji aplikacji...');
       
-      const patterns = {
-        'completed': [300, 100, 300, 100, 500],
-        'partial': [200, 100, 200],
-        'failed': [400],
-        'not-applicable': [150]
+      // Detect device type
+      const userAgent = navigator.userAgent;
+      const isPoco = /POCO/i.test(userAgent);
+      const isXiaomi = /Xiaomi|Mi |Redmi/i.test(userAgent);
+      
+      const patterns = isPoco || isXiaomi ? {
+        'completed': [1500, 300, 1500, 300, 2000],
+        'partial': [1000, 300, 1000],
+        'failed': [1200],
+        'not-applicable': [800]
+      } : {
+        'completed': [500, 150, 500, 150, 800],
+        'partial': [400, 200, 400],
+        'failed': [600],
+        'not-applicable': [300]
       };
       
       let delay = 0;
@@ -308,10 +318,42 @@ function AppContent() {
           const result = navigator.vibrate(pattern);
           console.log(`📳 ${status} pattern result:`, result);
         }, delay);
-        delay += 2000; // 2 sekundy między testami
+        delay += 3000; // 3 sekundy między testami dla dłuższych wzorów
       });
       
-      alert('🔧 Testowanie wszystkich wzorów wibracji!\n\nKolejno będą testowane wzory dla:\n• completed (za 0s)\n• partial (za 2s)\n• failed (za 4s)\n• not-applicable (za 6s)\n\nObserwuj konsolę i czuj wibracje!');
+      const deviceInfo = isPoco ? ' (POCO PATTERNS)' : isXiaomi ? ' (XIAOMI PATTERNS)' : ' (STANDARD PATTERNS)';
+      alert('🔧 Testowanie wszystkich wzorów wibracji' + deviceInfo + '!\n\nKolejno będą testowane wzory dla:\n• completed (za 0s)\n• partial (za 3s)\n• failed (za 6s)\n• not-applicable (za 9s)\n\nObserwuj konsolę i czuj wibracje!');
+      return true;
+    };
+    
+    // Dodaj specjalną funkcję dla urządzeń Poco
+    (window as any).testPocoVibration = () => {
+      console.log('🔥 POCO EXTREME VIBRATION TEST!');
+      
+      const extremePatterns = [
+        [3000], // 3 sekundy ciągłej wibracji
+        [2000, 500, 2000], // 2s-pauza-2s
+        [1000, 200, 1000, 200, 1000, 200, 1000], // Szybka sekwencja
+        [5000] // 5 sekund maksymalnej wibracji
+      ];
+      
+      let delay = 0;
+      extremePatterns.forEach((pattern, index) => {
+        setTimeout(() => {
+          console.log(`🔥 POCO TEST ${index + 1}:`, pattern);
+          navigator.vibrate(0); // Stop previous
+          setTimeout(() => {
+            const result = navigator.vibrate(pattern);
+            console.log(`🔥 POCO TEST ${index + 1} result:`, result);
+            if (result) {
+              console.log('✅ Jeśli to nie działa, sprawdź ustawienia telefonu!');
+            }
+          }, 100);
+        }, delay);
+        delay += 7000; // 7 sekund między testami
+      });
+      
+      alert('🔥 POCO EXTREME VIBRATION TEST!\n\nSeria 4 ekstremalnych testów:\n• Test 1: 3s ciągła wibracja\n• Test 2: 2s-pauza-2s\n• Test 3: Szybka sekwencja\n• Test 4: 5s maksymalna wibracja\n\nJeśli nadal nic nie czujesz, problem może być w ustawieniach MIUI!');
       return true;
     };
     
@@ -336,6 +378,9 @@ function AppContent() {
     debugInfo += `• testVibrateConsole() - test 3s\n`;
     debugInfo += `• testVibratePattern() - test długiego wzoru\n`;
     debugInfo += `• testAllVibrations() - test wszystkich wzorów\n`;
+    if (isPoco || isXiaomi) {
+      debugInfo += `• testPocoVibration() - EKSTREMALNY TEST dla Poco/Xiaomi\n`;
+    }
     debugInfo += `Sprawdź czy to działa!`;
     
     alert(debugInfo);
@@ -347,17 +392,29 @@ function AppContent() {
     console.log('Platform:', platform);
     console.log('Czy jest Android?', isAndroid);
     console.log('Czy jest Chrome?', isChrome);
-    console.log('🔧 DODANO FUNKCJE: testVibrateConsole(), testVibratePattern(), testAllVibrations() - użyj w konsoli!');
+    const availableFunctions = ['testVibrateConsole()', 'testVibratePattern()', 'testAllVibrations()'];
+    if (isPoco || isXiaomi) {
+      availableFunctions.push('testPocoVibration()');
+    }
+    console.log('🔧 DODANO FUNKCJE: ' + availableFunctions.join(', ') + ' - użyj w konsoli!');
     
     const result = testVibration();
     
     // Wyświetl wynik testu
     if (result) {
       console.log('✅ Test wibracji zakończony pomyślnie');
-      alert('✅ Test wibracji wykonany pomyślnie!\n\nJeśli nie poczułeś wibracji:\n• Sprawdź konsolę deweloperską\n• Wpisz: testVibrateConsole(), testVibratePattern() lub testAllVibrations()\n• Sprawdź ustawienia telefonu');
+      const testFunctions = isPoco || isXiaomi ? 
+        'testVibrateConsole(), testVibratePattern(), testAllVibrations() lub testPocoVibration()' :
+        'testVibrateConsole(), testVibratePattern() lub testAllVibrations()';
+      
+      alert('✅ Test wibracji wykonany pomyślnie!\n\nJeśli nie poczułeś wibracji:\n• Sprawdź konsolę deweloperską\n• Wpisz: ' + testFunctions + '\n• Sprawdź ustawienia telefonu' + (isPoco ? '\n• Dla Poco F2 Pro spróbuj testPocoVibration()!' : ''));
     } else {
       console.log('❌ Test wibracji nie powiódł się');
-      alert('❌ Test wibracji nie powiódł się!\n\nSpróbuj w konsoli:\n• Wpisz: testVibrateConsole(), testVibratePattern() lub testAllVibrations()\n• Sprawdź czy to działa\n• Użyj "Wymuś aktualizację"');
+      const testFunctions = isPoco || isXiaomi ? 
+        'testVibrateConsole(), testVibratePattern(), testAllVibrations() lub testPocoVibration()' :
+        'testVibrateConsole(), testVibratePattern() lub testAllVibrations()';
+      
+      alert('❌ Test wibracji nie powiódł się!\n\nSpróbuj w konsoli:\n• Wpisz: ' + testFunctions + '\n• Sprawdź czy to działa\n• Użyj "Wymuś aktualizację"' + (isPoco ? '\n• Dla Poco F2 Pro spróbuj testPocoVibration()!' : ''));
     }
     setShowMenu(false);
   };
