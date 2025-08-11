@@ -225,6 +225,19 @@ function AppContent() {
     const protocol = window.location.protocol;
     const hostname = window.location.hostname;
     
+    // Dodaj globalną funkcję do testowania w konsoli
+    (window as any).testVibrateConsole = () => {
+      console.log('🔧 Test wibracji z konsoli...');
+      try {
+        const result = navigator.vibrate(300);
+        console.log('📳 Wynik:', result);
+        return result;
+      } catch (e) {
+        console.error('❌ Błąd:', e);
+        return false;
+      }
+    };
+    
     // Wyświetl informacje w alertach
     let debugInfo = `=== INFORMACJE DEBUGOWANIA WIBRACJI ===\n\n`;
     debugInfo += `🔧 Środowisko:\n`;
@@ -241,6 +254,10 @@ function AppContent() {
     debugInfo += `📳 Vibration API:\n`;
     debugInfo += `• Dostępne: ${hasVibrationAPI ? 'TAK' : 'NIE'}\n\n`;
     
+    debugInfo += `🔧 DODATKOWY TEST:\n`;
+    debugInfo += `W konsoli wpisz: testVibrateConsole()\n`;
+    debugInfo += `Sprawdź czy to działa!`;
+    
     alert(debugInfo);
     
     // Wykonaj test wibracji
@@ -250,16 +267,17 @@ function AppContent() {
     console.log('Platform:', platform);
     console.log('Czy jest Android?', isAndroid);
     console.log('Czy jest Chrome?', isChrome);
+    console.log('🔧 DODANO FUNKCJĘ: testVibrateConsole() - użyj w konsoli!');
     
     const result = testVibration();
     
     // Wyświetl wynik testu
     if (result) {
       console.log('✅ Test wibracji zakończony pomyślnie');
-      alert('✅ Test wibracji wykonany pomyślnie!\n\nJeśli nie poczułeś wibracji, sprawdź:\n• Ustawienia wibracji w telefonie\n• Uprawnienia Chrome do wibracji\n• Czy telefon nie jest w trybie cichym');
+      alert('✅ Test wibracji wykonany pomyślnie!\n\nJeśli nie poczułeś wibracji:\n• Sprawdź konsolę deweloperską\n• Wpisz: testVibrateConsole()\n• Sprawdź ustawienia telefonu');
     } else {
       console.log('❌ Test wibracji nie powiódł się');
-      alert('❌ Test wibracji nie powiódł się!\n\nMożliwe przyczyny:\n• Brak obsługi Vibration API\n• Brak uprawnień\n• Niezabezpieczone połączenie\n\nSpróbuj użyć "Wymuś aktualizację"');
+      alert('❌ Test wibracji nie powiódł się!\n\nSpróbuj w konsoli:\n• Wpisz: testVibrateConsole()\n• Sprawdź czy to działa\n• Użyj "Wymuś aktualizację"');
     }
     setShowMenu(false);
   };

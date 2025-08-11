@@ -92,46 +92,44 @@ export const testVibration = () => {
     return false;
   }
   
-  // Sprawdź bezpieczeństwo kontekstu
-  if (!isSecureContext && !isLocalhost) {
-    const errorMsg = '❌ Wibracja wymaga bezpiecznego połączenia (HTTPS) lub localhost';
-    console.error(errorMsg);
-    alert(errorMsg + '\n\nSpróbuj:\n• Użyć HTTPS\n• Zainstalować jako PWA\n• Użyć "Wymuś aktualizację"');
-    return false;
-  }
-  
-  // Inicjalizuj wibrację
-  console.log('🔄 Inicjalizacja wibracji...');
-  const initResult = initializeVibration();
-  console.log('🔄 Inicjalizacja zakończona:', initResult);
-  
-  // Wykonaj test wibracji
+  // NAJPROSTSZY TEST - bez żadnych dodatkowych warunków
   try {
-    console.log('📳 Próba wibracji (200ms)...');
-    const result = navigator.vibrate(200);
-    console.log('📳 Wynik wibracji:', result);
+    console.log('📳 PROSTY TEST: Bezpośrednie wywołanie navigator.vibrate(500)...');
     
-    if (result) {
-      console.log('✅ Wibracja wykonana pomyślnie (200ms)');
-      
-      // Dodatkowy test z wzorem
-      setTimeout(() => {
-        console.log('📳 Test wzoru wibracji...');
-        const patternResult = navigator.vibrate([100, 50, 100]);
-        console.log('📳 Wynik wzoru:', patternResult);
-      }, 500);
-      
+    // Najpierw spróbuj zatrzymać wszystkie wibracje
+    navigator.vibrate(0);
+    console.log('📳 Zatrzymano poprzednie wibracje');
+    
+    // Teraz spróbuj prostej wibracji
+    const result1 = navigator.vibrate(500);
+    console.log('📳 Test 1 - navigator.vibrate(500):', result1);
+    
+    setTimeout(() => {
+      console.log('📳 Test 2 - navigator.vibrate([200, 100, 200])...');
+      const result2 = navigator.vibrate([200, 100, 200]);
+      console.log('📳 Test 2 wynik:', result2);
+    }, 1000);
+    
+    setTimeout(() => {
+      console.log('📳 Test 3 - navigator.vibrate(1000)...');
+      const result3 = navigator.vibrate(1000);
+      console.log('📳 Test 3 wynik:', result3);
+    }, 2500);
+    
+    if (result1) {
+      console.log('✅ Podstawowa wibracja powinna działać');
+      alert('✅ Test wibracji uruchomiony!\n\nWykonuję 3 testy wibracji:\n1. 500ms wibracja\n2. Wzór: 200ms-100ms-200ms\n3. 1000ms wibracja\n\nSprawdź czy czujesz wibracje!');
       return true;
     } else {
       const errorMsg = '⚠️ navigator.vibrate() zwrócił false';
       console.warn(errorMsg);
-      alert(errorMsg + '\n\nMożliwe przyczyny:\n• Brak uprawnień\n• Tryb cichy telefonu\n• Wyłączona wibracja w ustawieniach');
+      alert(errorMsg + '\n\nNavigator.vibrate() zwrócił false.\nTo może oznaczać:\n• Brak uprawnień\n• Tryb cichy\n• Wyłączona wibracja w ustawieniach\n• Blokada przez przeglądarkę');
       return false;
     }
   } catch (error) {
     const errorMsg = '❌ Błąd podczas wykonywania wibracji: ' + error;
     console.error(errorMsg);
-    alert(errorMsg + '\n\nSpróbuj:\n• Odświeżyć stronę\n• Sprawdzić uprawnienia Chrome\n• Użyć "Wymuś aktualizację"');
+    alert(errorMsg + '\n\nWystąpił błąd JavaScript:\n' + error.message);
     return false;
   }
 };
