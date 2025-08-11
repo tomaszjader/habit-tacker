@@ -214,20 +214,52 @@ function AppContent() {
   };
 
   const handleTestVibration = () => {
+    // Zbierz informacje debugowania
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+    const userAgent = navigator.userAgent;
+    const platform = navigator.platform;
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isChrome = /Chrome/i.test(navigator.userAgent);
+    const hasVibrationAPI = 'vibrate' in navigator;
+    const isSecureContext = window.isSecureContext;
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    
+    // Wyświetl informacje w alertach
+    let debugInfo = `=== INFORMACJE DEBUGOWANIA WIBRACJI ===\n\n`;
+    debugInfo += `🔧 Środowisko:\n`;
+    debugInfo += `• PWA: ${isPWA ? 'TAK' : 'NIE'}\n`;
+    debugInfo += `• Android: ${isAndroid ? 'TAK' : 'NIE'}\n`;
+    debugInfo += `• Chrome: ${isChrome ? 'TAK' : 'NIE'}\n`;
+    debugInfo += `• Platform: ${platform}\n\n`;
+    
+    debugInfo += `🌐 Połączenie:\n`;
+    debugInfo += `• Protokół: ${protocol}\n`;
+    debugInfo += `• Host: ${hostname}\n`;
+    debugInfo += `• Secure Context: ${isSecureContext ? 'TAK' : 'NIE'}\n\n`;
+    
+    debugInfo += `📳 Vibration API:\n`;
+    debugInfo += `• Dostępne: ${hasVibrationAPI ? 'TAK' : 'NIE'}\n\n`;
+    
+    alert(debugInfo);
+    
+    // Wykonaj test wibracji
     console.log('=== INFORMACJE DEBUGOWANIA WIBRACJI ===');
-    console.log('Czy aplikacja jest PWA?', window.matchMedia('(display-mode: standalone)').matches);
-    console.log('User Agent:', navigator.userAgent);
-    console.log('Platform:', navigator.platform);
-    console.log('Czy jest Android?', /Android/i.test(navigator.userAgent));
-    console.log('Czy jest Chrome?', /Chrome/i.test(navigator.userAgent));
+    console.log('Czy aplikacja jest PWA?', isPWA);
+    console.log('User Agent:', userAgent);
+    console.log('Platform:', platform);
+    console.log('Czy jest Android?', isAndroid);
+    console.log('Czy jest Chrome?', isChrome);
     
     const result = testVibration();
+    
+    // Wyświetl wynik testu
     if (result) {
       console.log('✅ Test wibracji zakończony pomyślnie');
-      alert('Test wibracji wykonany! Sprawdź konsolę deweloperską aby zobaczyć szczegóły.');
+      alert('✅ Test wibracji wykonany pomyślnie!\n\nJeśli nie poczułeś wibracji, sprawdź:\n• Ustawienia wibracji w telefonie\n• Uprawnienia Chrome do wibracji\n• Czy telefon nie jest w trybie cichym');
     } else {
       console.log('❌ Test wibracji nie powiódł się');
-      alert('Test wibracji nie powiódł się. Sprawdź konsolę deweloperską aby zobaczyć szczegóły. Spróbuj użyć przycisku "Wymuś aktualizację".');
+      alert('❌ Test wibracji nie powiódł się!\n\nMożliwe przyczyny:\n• Brak obsługi Vibration API\n• Brak uprawnień\n• Niezabezpieczone połączenie\n\nSpróbuj użyć "Wymuś aktualizację"');
     }
     setShowMenu(false);
   };

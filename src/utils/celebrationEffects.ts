@@ -67,26 +67,73 @@ export const initializeVibration = () => {
 
 // Test vibration function for debugging
 export const testVibration = () => {
-  console.log('Testing vibration...');
-  console.log('Navigator vibrate available:', 'vibrate' in navigator);
-  console.log('Secure context:', window.isSecureContext);
-  console.log('Protocol:', location.protocol);
-  console.log('Vibration initialized:', vibrationInitialized);
+  console.log('🔧 [DEBUG] Test wibracji rozpoczęty');
   
-  // Try to initialize first
-  initializeVibration();
+  // Zbierz informacje debugowania
+  const hasVibrationAPI = 'vibrate' in navigator;
+  const isSecureContext = window.isSecureContext;
+  const protocol = location.protocol;
+  const hostname = location.hostname;
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isChrome = /Chrome/i.test(navigator.userAgent);
+  const isPWA = window.matchMedia('(display-mode: standalone)').matches;
   
-  if ('vibrate' in navigator) {
-    try {
-      const result = navigator.vibrate(200);
-      console.log('Test vibration result:', result);
-      return result;
-    } catch (error) {
-      console.error('Test vibration failed:', error);
+  console.log('📱 Środowisko: PWA=' + isPWA + ', Android=' + isAndroid + ', Chrome=' + isChrome);
+  console.log('🌐 Lokalizacja: ' + location.href + ', Secure=' + isSecureContext);
+  console.log('📳 Vibration API: dostępne=' + hasVibrationAPI);
+  console.log('🔧 Vibration initialized:', vibrationInitialized);
+  
+  // Sprawdź dostępność API
+  if (!hasVibrationAPI) {
+    const errorMsg = '❌ Vibration API nie jest dostępne w tej przeglądarce';
+    console.error(errorMsg);
+    alert(errorMsg + '\n\nTwoja przeglądarka nie obsługuje wibracji.');
+    return false;
+  }
+  
+  // Sprawdź bezpieczeństwo kontekstu
+  if (!isSecureContext && !isLocalhost) {
+    const errorMsg = '❌ Wibracja wymaga bezpiecznego połączenia (HTTPS) lub localhost';
+    console.error(errorMsg);
+    alert(errorMsg + '\n\nSpróbuj:\n• Użyć HTTPS\n• Zainstalować jako PWA\n• Użyć "Wymuś aktualizację"');
+    return false;
+  }
+  
+  // Inicjalizuj wibrację
+  console.log('🔄 Inicjalizacja wibracji...');
+  const initResult = initializeVibration();
+  console.log('🔄 Inicjalizacja zakończona:', initResult);
+  
+  // Wykonaj test wibracji
+  try {
+    console.log('📳 Próba wibracji (200ms)...');
+    const result = navigator.vibrate(200);
+    console.log('📳 Wynik wibracji:', result);
+    
+    if (result) {
+      console.log('✅ Wibracja wykonana pomyślnie (200ms)');
+      
+      // Dodatkowy test z wzorem
+      setTimeout(() => {
+        console.log('📳 Test wzoru wibracji...');
+        const patternResult = navigator.vibrate([100, 50, 100]);
+        console.log('📳 Wynik wzoru:', patternResult);
+      }, 500);
+      
+      return true;
+    } else {
+      const errorMsg = '⚠️ navigator.vibrate() zwrócił false';
+      console.warn(errorMsg);
+      alert(errorMsg + '\n\nMożliwe przyczyny:\n• Brak uprawnień\n• Tryb cichy telefonu\n• Wyłączona wibracja w ustawieniach');
       return false;
     }
+  } catch (error) {
+    const errorMsg = '❌ Błąd podczas wykonywania wibracji: ' + error;
+    console.error(errorMsg);
+    alert(errorMsg + '\n\nSpróbuj:\n• Odświeżyć stronę\n• Sprawdzić uprawnienia Chrome\n• Użyć "Wymuś aktualizację"');
+    return false;
   }
-  return false;
 };
 
 export const triggerVibration = (status: StatusType) => {
