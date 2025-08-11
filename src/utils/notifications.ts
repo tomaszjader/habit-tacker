@@ -36,11 +36,29 @@ export const registerServiceWorker = async (): Promise<boolean> => {
 
   try {
     const registration = await navigator.serviceWorker.register('/sw.js', {
-      scope: '/'
+      scope: '/',
+      updateViaCache: 'none' // Wymusza sprawdzenie aktualizacji
     });
     
     serviceWorkerRegistration = registration;
     console.log('Service Worker registered successfully:', registration);
+    
+    // Sprawdź czy jest dostępna aktualizacja
+    registration.addEventListener('updatefound', () => {
+      console.log('Service Worker update found');
+      const newWorker = registration.installing;
+      if (newWorker) {
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('New Service Worker installed, reloading page...');
+            window.location.reload();
+          }
+        });
+      }
+    });
+    
+    // Sprawdź aktualizacje
+    await registration.update();
     
     // Wait for service worker to be ready
     await navigator.serviceWorker.ready;

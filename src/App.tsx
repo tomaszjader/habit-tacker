@@ -23,7 +23,7 @@ import AddHabitForm from './components/AddHabitForm';
 import NotificationSettings from './components/NotificationSettings';
 import ImportExportModal from './components/ImportExportModal';
 import Logo from './components/Logo';
-import { Plus, Moon, Sun, Languages, Bell, Lock, Unlock, Menu, X, Database, Trash2, Smartphone } from 'lucide-react';
+import { Plus, Moon, Sun, Languages, Bell, Lock, Unlock, Menu, X, Database, Trash2, Smartphone, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import './i18n/config';
@@ -214,13 +214,50 @@ function AppContent() {
   };
 
   const handleTestVibration = () => {
+    console.log('=== INFORMACJE DEBUGOWANIA WIBRACJI ===');
+    console.log('Czy aplikacja jest PWA?', window.matchMedia('(display-mode: standalone)').matches);
+    console.log('User Agent:', navigator.userAgent);
+    console.log('Platform:', navigator.platform);
+    console.log('Czy jest Android?', /Android/i.test(navigator.userAgent));
+    console.log('Czy jest Chrome?', /Chrome/i.test(navigator.userAgent));
+    
     const result = testVibration();
     if (result) {
-      console.log('Test wibracji zakończony pomyślnie');
+      console.log('✅ Test wibracji zakończony pomyślnie');
+      alert('Test wibracji wykonany! Sprawdź konsolę deweloperską aby zobaczyć szczegóły.');
     } else {
-      console.log('Test wibracji nie powiódł się');
+      console.log('❌ Test wibracji nie powiódł się');
+      alert('Test wibracji nie powiódł się. Sprawdź konsolę deweloperską aby zobaczyć szczegóły. Spróbuj użyć przycisku "Wymuś aktualizację".');
     }
-    closeMenu();
+    setShowMenu(false);
+  };
+
+  const handleForceUpdate = async () => {
+    try {
+      // Wyczyść cache przeglądarki
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(
+          cacheNames.map(cacheName => caches.delete(cacheName))
+        );
+        console.log('Cache wyczyszczony');
+      }
+      
+      // Wymuś aktualizację service worker
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.update();
+          console.log('Service Worker zaktualizowany');
+        }
+      }
+      
+      // Przeładuj stronę
+      window.location.reload();
+    } catch (error) {
+      console.error('Błąd podczas wymuszania aktualizacji:', error);
+    }
+    setShowMenu(false);
   };
 
   const handleThemeToggle = () => {
@@ -467,15 +504,26 @@ function AppContent() {
                     </button>
 
                     {/* Test Vibration */}
-                    <button
-                      onClick={handleTestVibration}
-                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
-                      role="menuitem"
-                      aria-label="Test wibracji"
-                    >
-                      <Smartphone size={18} className="text-pink-500" />
-                      <span>Test wibracji</span>
-                    </button>
+                     <button
+                       onClick={handleTestVibration}
+                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                       role="menuitem"
+                       aria-label="Test wibracji"
+                     >
+                       <Smartphone size={18} className="text-pink-500" />
+                       <span>Test wibracji</span>
+                     </button>
+
+                     {/* Force Update */}
+                     <button
+                       onClick={handleForceUpdate}
+                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                       role="menuitem"
+                       aria-label="Wymuś aktualizację"
+                     >
+                       <RefreshCw size={18} className="text-blue-500" />
+                       <span>Wymuś aktualizację</span>
+                     </button>
 
                     {/* Language */}
                     <button

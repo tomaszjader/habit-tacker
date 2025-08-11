@@ -1,5 +1,5 @@
 // Enhanced Service Worker for PWA on Android with splash screen support
-const CACHE_NAME = 'habit-tracker-v6'; // Zwiększam wersję cache po naprawie przewijania
+const CACHE_NAME = 'habit-tracker-v7'; // Zwiększam wersję cache po dodaniu wibracji
 const NOTIFICATION_SETTINGS_KEY = 'habit-tracker-notifications';
 const DB_NAME = 'HabitTrackerDB';
 const DB_VERSION = 2;
