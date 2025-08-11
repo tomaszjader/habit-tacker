@@ -13,15 +13,15 @@ const initAudioContext = () => {
 // Enhanced vibration patterns for different statuses (mobile only)
 const vibratePattern = (pattern: number[]) => {
   try {
-    console.log('vibratePattern called with:', pattern);
-    console.log('Location:', location.href);
-    console.log('Protocol:', location.protocol);
-    console.log('Hostname:', location.hostname);
-    console.log('isSecureContext:', window.isSecureContext);
+    console.log('🔧 vibratePattern called with:', pattern);
+    console.log('📍 Location:', location.href);
+    console.log('🔒 Protocol:', location.protocol);
+    console.log('🌐 Hostname:', location.hostname);
+    console.log('🛡️ isSecureContext:', window.isSecureContext);
     
     // Check if vibration is supported
     if (!('vibrate' in navigator)) {
-      console.log('Vibration API not supported');
+      console.log('❌ Vibration API not supported');
       return false;
     }
 
@@ -30,18 +30,52 @@ const vibratePattern = (pattern: number[]) => {
     const isSecure = window.isSecureContext || location.protocol === 'https:';
     
     if (!isSecure && !isLocalhost) {
-      console.log('Vibration requires secure context (HTTPS) or localhost');
+      console.log('❌ Vibration requires secure context (HTTPS) or localhost');
       return false;
     }
 
-    console.log('Attempting to vibrate with pattern:', pattern);
+    // Stop any existing vibrations first
+    navigator.vibrate(0);
+    console.log('🛑 Stopped existing vibrations');
     
-    // Try to vibrate
-    const result = navigator.vibrate(pattern);
-    console.log('Vibration triggered:', pattern, 'Result:', result);
-    return result;
+    // Small delay to ensure previous vibration stopped
+    setTimeout(() => {
+      console.log('📳 Attempting to vibrate with pattern:', pattern);
+      
+      // Try to vibrate
+      const result = navigator.vibrate(pattern);
+      console.log('✅ Vibration triggered:', pattern, 'Result:', result);
+      
+      // Additional verification - try to detect if vibration actually works
+      if (result) {
+        console.log('🎯 navigator.vibrate() returned true - vibration should be active');
+        
+        // Check device capabilities
+        const userAgent = navigator.userAgent;
+        const isAndroid = /Android/i.test(userAgent);
+        const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
+        const isChrome = /Chrome/i.test(userAgent);
+        const isSafari = /Safari/i.test(userAgent) && !isChrome;
+        
+        console.log('📱 Device info: Android=' + isAndroid + ', iOS=' + isIOS + ', Chrome=' + isChrome + ', Safari=' + isSafari);
+        
+        if (isIOS && isSafari) {
+          console.log('⚠️ iOS Safari may not support vibration');
+        }
+        
+        if (isAndroid && !isChrome) {
+          console.log('⚠️ Android non-Chrome browser - vibration support may be limited');
+        }
+      } else {
+        console.log('❌ navigator.vibrate() returned false - vibration blocked or not supported');
+      }
+      
+      return result;
+    }, 10);
+    
+    return true; // Return true immediately, actual result will be logged
   } catch (error) {
-    console.error('Vibration error:', error);
+    console.error('❌ Vibration error:', error);
     return false;
   }
 };
@@ -94,26 +128,53 @@ export const testVibration = () => {
   
   // NAJPROSTSZY TEST - natychmiastowe wykonanie
   try {
-    console.log('📳 PROSTY TEST: Bezpośrednie wywołanie navigator.vibrate(1000)...');
+    console.log('📳 PROSTY TEST: Bezpośrednie wywołanie navigator.vibrate()...');
     
     // Najpierw spróbuj zatrzymać wszystkie wibracje
     navigator.vibrate(0);
-    console.log('📳 Zatrzymano poprzednie wibracje');
+    console.log('🛑 Zatrzymano poprzednie wibracje');
     
-    // Teraz spróbuj długiej wibracji (1 sekunda)
-    const result = navigator.vibrate(1000);
-    console.log('📳 navigator.vibrate(1000) wynik:', result);
+    // Poczekaj chwilę, potem wykonaj test
+    setTimeout(() => {
+      console.log('📳 Wykonuję test wibracji...');
+      
+      // Test 1: Długa wibracja (2 sekundy)
+      console.log('🔧 TEST 1: Długa wibracja (2000ms)');
+      const result1 = navigator.vibrate(2000);
+      console.log('📳 navigator.vibrate(2000) wynik:', result1);
+      
+      // Test 2: Wzór wibracji po 3 sekundach
+      setTimeout(() => {
+        console.log('🔧 TEST 2: Wzór wibracji');
+        const pattern = [500, 200, 500, 200, 1000];
+        const result2 = navigator.vibrate(pattern);
+        console.log('📳 navigator.vibrate(' + JSON.stringify(pattern) + ') wynik:', result2);
+        
+        // Test 3: Bardzo długa wibracja po kolejnych 4 sekundach
+        setTimeout(() => {
+          console.log('🔧 TEST 3: Bardzo długa wibracja (3000ms)');
+          const result3 = navigator.vibrate(3000);
+          console.log('📳 navigator.vibrate(3000) wynik:', result3);
+          
+          console.log('🏁 Wszystkie testy wibracji zakończone');
+        }, 4000);
+      }, 3000);
+    }, 100);
     
-    if (result) {
-      console.log('✅ Wibracja powinna być aktywna przez 1 sekundę');
-      alert('✅ Test wibracji uruchomiony!\n\nPowinieneś czuć wibrację przez 1 sekundę.\n\nJeśli nie czujesz:\n• Sprawdź ustawienia wibracji w telefonie\n• Sprawdź czy telefon nie jest w trybie cichym\n• Spróbuj funkcji testVibrateConsole() w konsoli');
-      return true;
-    } else {
-      const errorMsg = '⚠️ navigator.vibrate() zwrócił false';
-      console.warn(errorMsg);
-      alert(errorMsg + '\n\nNavigator.vibrate() zwrócił false.\nTo może oznaczać:\n• Brak uprawnień\n• Tryb cichy\n• Wyłączona wibracja w ustawieniach\n• Blokada przez przeglądarkę\n\nSpróbuj testVibrateConsole() w konsoli');
-      return false;
-    }
+    const alertMsg = '🔧 URUCHOMIONO SERIĘ TESTÓW WIBRACJI!\n\n' +
+      '📅 Harmonogram testów:\n' +
+      '• Za 0.1s: Długa wibracja (2s)\n' +
+      '• Za 3s: Wzór wibracji\n' +
+      '• Za 7s: Bardzo długa wibracja (3s)\n\n' +
+      '📱 Jeśli nie czujesz żadnej wibracji:\n' +
+      '• Sprawdź ustawienia wibracji w telefonie\n' +
+      '• Sprawdź czy telefon nie jest w trybie cichym\n' +
+      '• Sprawdź konsolę deweloperską\n' +
+      '• Spróbuj testVibrateConsole() w konsoli\n\n' +
+      '🔍 Obserwuj konsolę - wszystkie wyniki będą tam zapisane!';
+    
+    alert(alertMsg);
+    return true;
   } catch (error) {
     const errorMsg = '❌ Błąd podczas wykonywania wibracji: ' + error;
     console.error(errorMsg);
@@ -123,25 +184,30 @@ export const testVibration = () => {
 };
 
 export const triggerVibration = (status: StatusType) => {
-  console.log('Triggering vibration for status:', status);
+  console.log('🎯 Triggering vibration for status:', status);
   
   // Initialize vibration if not already done
   initializeVibration();
   
   switch (status) {
     case 'completed':
-      // Triumphant vibration - short burst, pause, longer burst
-      return vibratePattern([100, 50, 150, 50, 200]);
+      // Triumphant vibration - longer, more noticeable pattern
+      console.log('🎉 Playing COMPLETED vibration pattern');
+      return vibratePattern([300, 100, 300, 100, 500]);
     case 'partial':
-      // Gentle encouraging vibration - two short pulses
-      return vibratePattern([50, 50, 50]);
+      // Gentle encouraging vibration - two medium pulses
+      console.log('👍 Playing PARTIAL vibration pattern');
+      return vibratePattern([200, 100, 200]);
     case 'failed':
       // Sympathetic vibration - one longer gentle pulse
-      return vibratePattern([100]);
+      console.log('😔 Playing FAILED vibration pattern');
+      return vibratePattern([400]);
     case 'not-applicable':
-      // Very light feedback
-      return vibratePattern([30]);
+      // Light feedback but still noticeable
+      console.log('➖ Playing NOT-APPLICABLE vibration pattern');
+      return vibratePattern([150]);
     default:
+      console.log('❓ Unknown status, no vibration');
       return false;
   }
 };

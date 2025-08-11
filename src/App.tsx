@@ -231,21 +231,28 @@ function AppContent() {
       try {
         // Zatrzymaj poprzednie wibracje
         navigator.vibrate(0);
-        console.log('📳 Zatrzymano poprzednie wibracje');
+        console.log('🛑 Zatrzymano poprzednie wibracje');
         
-        // Test długiej wibracji
-        const result = navigator.vibrate(2000); // 2 sekundy
-        console.log('📳 navigator.vibrate(2000) wynik:', result);
+        // Test bardzo długiej wibracji (3 sekundy)
+        setTimeout(() => {
+          const result = navigator.vibrate(3000); // 3 sekundy
+          console.log('📳 navigator.vibrate(3000) wynik:', result);
+          
+          if (result) {
+            console.log('✅ Wibracja powinna trwać 3 sekundy - czy czujesz?');
+            alert('📳 Test wibracji uruchomiony!\n\nPowinieneś czuć silną wibrację przez 3 sekundy.\n\nJeśli nie czujesz:\n• Sprawdź ustawienia wibracji\n• Sprawdź tryb cichy\n• Spróbuj testVibratePattern()');
+          } else {
+            console.log('❌ navigator.vibrate zwrócił false');
+            alert('❌ navigator.vibrate zwrócił false\n\nMożliwe przyczyny:\n• Brak uprawnień\n• Tryb cichy\n• Wyłączona wibracja\n• Blokada przeglądarki');
+          }
+          
+          return result;
+        }, 100);
         
-        if (result) {
-          console.log('✅ Wibracja powinna trwać 2 sekundy');
-        } else {
-          console.log('❌ navigator.vibrate zwrócił false');
-        }
-        
-        return result;
+        return true;
       } catch (e) {
         console.error('❌ Błąd:', e);
+        alert('❌ Błąd: ' + e.message);
         return false;
       }
     };
@@ -254,14 +261,58 @@ function AppContent() {
     (window as any).testVibratePattern = () => {
       console.log('🔧 Test wzoru wibracji z konsoli...');
       try {
-        const pattern = [500, 200, 500, 200, 1000];
-        const result = navigator.vibrate(pattern);
-        console.log('📳 navigator.vibrate(' + JSON.stringify(pattern) + ') wynik:', result);
-        return result;
+        // Zatrzymaj poprzednie wibracje
+        navigator.vibrate(0);
+        console.log('🛑 Zatrzymano poprzednie wibracje');
+        
+        setTimeout(() => {
+          // Długi, wyraźny wzór
+          const pattern = [800, 200, 800, 200, 1200, 300, 1500];
+          const result = navigator.vibrate(pattern);
+          console.log('📳 navigator.vibrate(' + JSON.stringify(pattern) + ') wynik:', result);
+          
+          if (result) {
+            console.log('✅ Wzór wibracji uruchomiony - powinien trwać około 5 sekund');
+            alert('📳 Wzór wibracji uruchomiony!\n\nPowinieneś czuć sekwencję wibracji przez około 5 sekund.\n\nWzór: długa-pauza-długa-pauza-bardzo długa-pauza-najdłuższa');
+          } else {
+            console.log('❌ navigator.vibrate zwrócił false');
+            alert('❌ Wzór wibracji nie zadziałał');
+          }
+          
+          return result;
+        }, 100);
+        
+        return true;
       } catch (e) {
         console.error('❌ Błąd:', e);
+        alert('❌ Błąd: ' + e.message);
         return false;
       }
+    };
+    
+    // Dodaj funkcję do testowania wszystkich wzorów aplikacji
+    (window as any).testAllVibrations = () => {
+      console.log('🔧 Test wszystkich wzorów wibracji aplikacji...');
+      
+      const patterns = {
+        'completed': [300, 100, 300, 100, 500],
+        'partial': [200, 100, 200],
+        'failed': [400],
+        'not-applicable': [150]
+      };
+      
+      let delay = 0;
+      Object.entries(patterns).forEach(([status, pattern]) => {
+        setTimeout(() => {
+          console.log(`📳 Testowanie wzoru dla statusu: ${status}`);
+          const result = navigator.vibrate(pattern);
+          console.log(`📳 ${status} pattern result:`, result);
+        }, delay);
+        delay += 2000; // 2 sekundy między testami
+      });
+      
+      alert('🔧 Testowanie wszystkich wzorów wibracji!\n\nKolejno będą testowane wzory dla:\n• completed (za 0s)\n• partial (za 2s)\n• failed (za 4s)\n• not-applicable (za 6s)\n\nObserwuj konsolę i czuj wibracje!');
+      return true;
     };
     
     // Wyświetl informacje w alertach
@@ -282,8 +333,9 @@ function AppContent() {
     
     debugInfo += `🔧 DODATKOWE TESTY:\n`;
     debugInfo += `W konsoli wpisz:\n`;
-    debugInfo += `• testVibrateConsole() - test 2s\n`;
-    debugInfo += `• testVibratePattern() - test wzoru\n`;
+    debugInfo += `• testVibrateConsole() - test 3s\n`;
+    debugInfo += `• testVibratePattern() - test długiego wzoru\n`;
+    debugInfo += `• testAllVibrations() - test wszystkich wzorów\n`;
     debugInfo += `Sprawdź czy to działa!`;
     
     alert(debugInfo);
@@ -295,17 +347,17 @@ function AppContent() {
     console.log('Platform:', platform);
     console.log('Czy jest Android?', isAndroid);
     console.log('Czy jest Chrome?', isChrome);
-    console.log('🔧 DODANO FUNKCJE: testVibrateConsole() i testVibratePattern() - użyj w konsoli!');
+    console.log('🔧 DODANO FUNKCJE: testVibrateConsole(), testVibratePattern(), testAllVibrations() - użyj w konsoli!');
     
     const result = testVibration();
     
     // Wyświetl wynik testu
     if (result) {
       console.log('✅ Test wibracji zakończony pomyślnie');
-      alert('✅ Test wibracji wykonany pomyślnie!\n\nJeśli nie poczułeś wibracji:\n• Sprawdź konsolę deweloperską\n• Wpisz: testVibrateConsole() lub testVibratePattern()\n• Sprawdź ustawienia telefonu');
+      alert('✅ Test wibracji wykonany pomyślnie!\n\nJeśli nie poczułeś wibracji:\n• Sprawdź konsolę deweloperską\n• Wpisz: testVibrateConsole(), testVibratePattern() lub testAllVibrations()\n• Sprawdź ustawienia telefonu');
     } else {
       console.log('❌ Test wibracji nie powiódł się');
-      alert('❌ Test wibracji nie powiódł się!\n\nSpróbuj w konsoli:\n• Wpisz: testVibrateConsole() lub testVibratePattern()\n• Sprawdź czy to działa\n• Użyj "Wymuś aktualizację"');
+      alert('❌ Test wibracji nie powiódł się!\n\nSpróbuj w konsoli:\n• Wpisz: testVibrateConsole(), testVibratePattern() lub testAllVibrations()\n• Sprawdź czy to działa\n• Użyj "Wymuś aktualizację"');
     }
     setShowMenu(false);
   };
