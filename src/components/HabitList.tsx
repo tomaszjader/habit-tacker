@@ -35,10 +35,10 @@ const HabitList: React.FC<HabitListProps> = ({
   
   if (habits.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-6xl mb-4">🎯</div>
-        <h2 className="text-xl font-semibold text-gray-600 mb-2">{t('habits.noHabitsYet')}</h2>
-        <p className="text-gray-500">{t('habits.addFirstHabit')}</p>
+      <div className="text-center py-12 animate-fade-in">
+        <div className="text-6xl mb-4 animate-bounce-gentle">🎯</div>
+        <h2 className="text-xl font-semibold text-gray-600 mb-2 visual-hierarchy-2 animate-fade-in" style={{animationDelay: '0.2s'}}>{t('habits.noHabitsYet')}</h2>
+        <p className="text-gray-500 visual-hierarchy-3 animate-fade-in" style={{animationDelay: '0.4s'}}>{t('habits.addFirstHabit')}</p>
       </div>
     );
   }
@@ -54,9 +54,12 @@ const HabitList: React.FC<HabitListProps> = ({
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', '');
     
-    // Dodaj wizualny feedback
+    // Dodaj wizualny feedback z animacją
     if (e.currentTarget instanceof HTMLElement) {
-      e.currentTarget.style.opacity = '0.5';
+      e.currentTarget.style.opacity = '0.7';
+      e.currentTarget.style.transform = 'scale(0.98) rotate(1deg)';
+      e.currentTarget.style.transition = 'all 0.2s ease';
+      e.currentTarget.classList.add('animate-swipe-feedback');
     }
   };
 
@@ -96,9 +99,12 @@ const HabitList: React.FC<HabitListProps> = ({
   };
 
   const handleDragEnd = (e: React.DragEvent) => {
-    // Przywróć opacity
+    // Przywróć wszystkie style z płynną animacją
     if (e.currentTarget instanceof HTMLElement) {
       e.currentTarget.style.opacity = '1';
+      e.currentTarget.style.transform = '';
+      e.currentTarget.style.transition = 'all 0.3s ease';
+      e.currentTarget.classList.remove('animate-swipe-feedback');
     }
     
     setDraggedIndex(null);
@@ -136,10 +142,13 @@ const HabitList: React.FC<HabitListProps> = ({
     // This allows for normal scrolling while still enabling drag
     if (deltaY > 15 && deltaX < 10 && !isTouchDragging) {
       setIsTouchDragging(true);
-      // Add visual feedback
+      // Add enhanced visual feedback with smooth animation
       const element = e.currentTarget as HTMLElement;
-      element.style.opacity = '0.5';
-      element.style.transform = 'scale(0.95) rotate(2deg)';
+      element.style.opacity = '0.8';
+      element.style.transform = 'scale(0.96) rotate(1.5deg)';
+      element.style.transition = 'all 0.2s ease';
+      element.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+      element.classList.add('animate-swipe-feedback');
     }
     
     if (isTouchDragging) {
@@ -169,10 +178,13 @@ const HabitList: React.FC<HabitListProps> = ({
       onReorderHabits(draggedIndex, dragOverIndex);
     }
     
-    // Reset visual feedback
+    // Reset visual feedback with smooth animation
     const element = e.currentTarget as HTMLElement;
     element.style.opacity = '1';
     element.style.transform = '';
+    element.style.transition = 'all 0.3s ease';
+    element.style.boxShadow = '';
+    element.classList.remove('animate-swipe-feedback');
     
     // Reset state
     setTouchStartY(null);
@@ -184,7 +196,7 @@ const HabitList: React.FC<HabitListProps> = ({
   };
 
   return (
-    <div ref={containerRef} className="space-y-2 sm:space-y-3">
+    <div ref={containerRef} className="space-y-2 sm:space-y-3 animate-fade-in">
       {habits.map((habit, index) => (
         <div
           key={habit.id}
@@ -198,11 +210,14 @@ const HabitList: React.FC<HabitListProps> = ({
           onTouchMove={(e) => handleTouchMove(e, index)}
           onTouchEnd={(e) => handleTouchEnd(e, index)}
           className={`
-            transition-all duration-200
-            ${isDragLocked ? 'cursor-default' : 'cursor-move'}
-            ${draggedIndex === index ? 'opacity-50 scale-95 rotate-2' : ''}
-            ${dragOverIndex === index && draggedIndex !== index ? 'transform scale-105 shadow-lg border-2 border-blue-400' : ''}
+            transition-all duration-300 ease-out
+            ${isDragLocked ? 'cursor-default' : 'cursor-move hover:scale-[1.01]'}
+            ${draggedIndex === index ? 'opacity-70 scale-96 rotate-1 z-10' : ''}
+            ${dragOverIndex === index && draggedIndex !== index ? 'transform scale-105 shadow-xl border-2 border-blue-400 bg-blue-50 dark:bg-blue-900/20' : ''}
+            animate-fade-in
+            focus-enhanced
           `}
+          style={{animationDelay: `${index * 0.1}s`}}
         >
           <HabitItem
             habit={habit}

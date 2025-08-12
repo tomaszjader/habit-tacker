@@ -558,27 +558,39 @@ function AppContent() {
   // Show loading screen
   if (isLoading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`}>
-        <div className="text-center">
-          <div className={`animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4 ${theme === 'dark' ? 'border-white' : 'border-blue-500'}`}></div>
-          <p className={`text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>{t('habits.title')}...</p>
+      <div className={`min-h-screen flex items-center justify-center ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-indigo-100'} animate-fade-in`}>
+        <div className="text-center animate-scale-in">
+          <div className="relative">
+            <div className={`animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4 ${theme === 'dark' ? 'border-white' : 'border-blue-500'}`}></div>
+            <div className={`absolute inset-0 rounded-full h-12 w-12 border-t-2 mx-auto animate-spin ${theme === 'dark' ? 'border-gray-600' : 'border-blue-200'}`} style={{animationDirection: 'reverse', animationDuration: '1.5s'}}></div>
+          </div>
+          <p className={`text-lg animate-loading-pulse ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>{t('habits.title')}...</p>
+          <div className="mt-4 flex justify-center space-x-1">
+            <div className={`w-2 h-2 rounded-full animate-loading-pulse ${theme === 'dark' ? 'bg-white' : 'bg-blue-500'}`} style={{animationDelay: '0s'}}></div>
+            <div className={`w-2 h-2 rounded-full animate-loading-pulse ${theme === 'dark' ? 'bg-white' : 'bg-blue-500'}`} style={{animationDelay: '0.2s'}}></div>
+            <div className={`w-2 h-2 rounded-full animate-loading-pulse ${theme === 'dark' ? 'bg-white' : 'bg-blue-500'}`} style={{animationDelay: '0.4s'}}></div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen flex flex-col ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`}>
+    <div className={`min-h-screen flex flex-col ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-indigo-100'} animate-fade-in`}>
       {/* Header */}
-      <div className={`sticky top-0 z-40 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} shadow-sm border-b backdrop-blur-sm bg-opacity-95`}>
+      <div className={`sticky top-0 z-40 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} shadow-sm border-b backdrop-blur-sm bg-opacity-95 dark-mode-enhanced animate-slide-down`}>
         <div className="max-w-md mx-auto px-3 sm:px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              <Logo size={36} className="w-9 h-9 sm:w-10 sm:h-10" />
+              <div className="animate-bounce-gentle">
+                <Logo size={36} className="w-9 h-9 sm:w-10 sm:h-10" />
+              </div>
               <div className="min-w-0 flex-1">
-                <h1 className={`text-lg sm:text-xl font-bold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{t('habits.title')}</h1>
-                <p className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                  {completedToday} {t('habits.of')} {validHabitsToday.length} {t('habits.completed')}
+                <h1 className={`visual-hierarchy-1 truncate ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{t('habits.title')}</h1>
+                <p className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} animate-fade-in`} style={{animationDelay: '0.2s'}}>
+                  <span className={`font-semibold ${completedToday === validHabitsToday.length && validHabitsToday.length > 0 ? 'text-green-500 animate-bounce-gentle' : ''}`}>
+                    {completedToday}
+                  </span> {t('habits.of')} {validHabitsToday.length} {t('habits.completed')}
                 </p>
               </div>
             </div>
@@ -587,7 +599,7 @@ function AppContent() {
               {/* Add Habit Button */}
               <button
                 onClick={() => setShowAddForm(true)}
-                className="celebration-button w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 active:scale-95"
+                className="btn-enhanced celebration-button touch-target w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 active:scale-95 focus-enhanced"
                 aria-label={t('habits.add')}
                 title={t('habits.add')}
               >
@@ -599,43 +611,47 @@ function AppContent() {
                 <button
                   id="menu-button"
                   onClick={toggleMenu}
-                  className={`celebration-button w-8 h-8 sm:w-10 sm:h-10 ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} rounded-full flex items-center justify-center transition-all duration-200 active:scale-95`}
+                  className={`btn-enhanced celebration-button touch-target w-8 h-8 sm:w-10 sm:h-10 ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} rounded-full flex items-center justify-center transition-all duration-200 active:scale-95 focus-enhanced`}
                   aria-label={t('menu.title')}
                   aria-expanded={showMenu}
                   aria-haspopup="menu"
                   title={t('menu.title')}
                 >
-                  {showMenu ? 
-                    <X size={16} className={`sm:w-5 sm:h-5 ${theme === 'dark' ? 'text-white' : 'text-gray-600'}`} /> :
-                    <Menu size={16} className={`sm:w-5 sm:h-5 ${theme === 'dark' ? 'text-white' : 'text-gray-600'}`} />
-                  }
+                  <div className={`transition-transform duration-200 ${showMenu ? 'rotate-90' : ''}`}>
+                    {showMenu ? 
+                      <X size={16} className={`sm:w-5 sm:h-5 ${theme === 'dark' ? 'text-white' : 'text-gray-600'}`} /> :
+                      <Menu size={16} className={`sm:w-5 sm:h-5 ${theme === 'dark' ? 'text-white' : 'text-gray-600'}`} />
+                    }
+                  </div>
                 </button>
 
               {/* Dropdown Menu */}
               {showMenu && (
                 <div 
-                  className={`absolute right-0 top-12 w-56 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-lg shadow-lg z-50`}
+                  className={`absolute right-0 top-12 w-56 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-lg shadow-lg z-50 animate-scale-in dark-mode-enhanced`}
                   role="menu"
                   aria-labelledby="menu-button"
                 >
                   <div className={`p-3 border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
-                    <h3 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{t('menu.title')}</h3>
+                    <h3 className={`visual-hierarchy-2 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{t('menu.title')}</h3>
                   </div>
                   
                   <div className="py-2">
                      {/* Drag Lock */}
                      <button
                        onClick={handleDragLockToggle}
-                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-all duration-200 focus-enhanced touch-target`}
                        role="menuitem"
                        aria-label={`${t('menu.dragLock')} - ${isDragLocked ? t('habits.orderLocked') : t('habits.orderUnlocked')}`}
                      >
-                       {isDragLocked ? 
-                         <Lock size={18} className="text-red-500" /> : 
-                         <Unlock size={18} className="text-green-500" />
-                       }
-                       <span>{t('menu.dragLock')}</span>
-                       <span className={`ml-auto text-sm ${isDragLocked ? 'text-red-500' : 'text-green-500'}`}>
+                       <div className={`transition-transform duration-200 ${isDragLocked ? 'animate-bounce-gentle' : ''}`}>
+                         {isDragLocked ? 
+                           <Lock size={18} className="text-red-500" /> : 
+                           <Unlock size={18} className="text-green-500" />
+                         }
+                       </div>
+                       <span className="visual-hierarchy-3">{t('menu.dragLock')}</span>
+                       <span className={`ml-auto text-sm font-medium ${isDragLocked ? 'text-red-500' : 'text-green-500'}`}>
                          {isDragLocked ? t('habits.orderLocked') : t('habits.orderUnlocked')}
                        </span>
                      </button>
@@ -643,48 +659,50 @@ function AppContent() {
                     {/* Import/Export */}
                     <button
                       onClick={handleImportExport}
-                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-all duration-200 focus-enhanced touch-target hover:scale-[1.02]`}
                       role="menuitem"
                       aria-label={t('menu.importExport')}
                     >
-                      <Database size={18} className="text-purple-500" />
-                      <span>{t('menu.importExport')}</span>
+                      <Database size={18} className="text-purple-500 transition-transform duration-200 hover:scale-110" />
+                      <span className="visual-hierarchy-3">{t('menu.importExport')}</span>
                     </button>
 
                     {/* Clear Data */}
                     <button
                       onClick={handleClearData}
-                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-all duration-200 focus-enhanced touch-target hover:scale-[1.02]`}
                       role="menuitem"
                       aria-label={t('menu.clearData')}
                     >
-                      <Trash2 size={18} className="text-red-500" />
-                      <span>{t('menu.clearData')}</span>
+                      <Trash2 size={18} className="text-red-500 transition-transform duration-200 hover:scale-110" />
+                      <span className="visual-hierarchy-3">{t('menu.clearData')}</span>
                     </button>
 
                     {/* Notifications */}
                     <button
                       onClick={handleNotificationSettings}
-                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-all duration-200 focus-enhanced touch-target hover:scale-[1.02]`}
                       role="menuitem"
                       aria-label={t('menu.notifications')}
                     >
-                      <Bell size={18} className="text-yellow-500" />
-                      <span>{t('menu.notifications')}</span>
+                      <Bell size={18} className="text-yellow-500 transition-transform duration-200 hover:scale-110" />
+                      <span className="visual-hierarchy-3">{t('menu.notifications')}</span>
                     </button>
 
                     {/* Theme */}
                     <button
                       onClick={handleThemeToggle}
-                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-all duration-200 focus-enhanced touch-target hover:scale-[1.02]`}
                       role="menuitem"
                       aria-label={`${t('menu.theme')} - ${theme === 'dark' ? t('theme.dark') : t('theme.light')}`}
                     >
-                      {theme === 'dark' ? 
-                        <Sun size={18} className="text-orange-500" /> : 
-                        <Moon size={18} className="text-purple-500" />
-                      }
-                      <span>{t('menu.theme')}</span>
+                      <div className="transition-transform duration-300 hover:rotate-180">
+                        {theme === 'dark' ? 
+                          <Sun size={18} className="text-orange-500" /> : 
+                          <Moon size={18} className="text-purple-500" />
+                        }
+                      </div>
+                      <span className="visual-hierarchy-3">{t('menu.theme')}</span>
                       <span className={`ml-auto text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                         {theme === 'dark' ? t('theme.dark') : t('theme.light')}
                       </span>
@@ -693,34 +711,36 @@ function AppContent() {
                     {/* Test Vibration */}
                      <button
                        onClick={handleTestVibration}
-                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-all duration-200 focus-enhanced touch-target hover:scale-[1.02]`}
                        role="menuitem"
                        aria-label="Test wibracji"
                      >
-                       <Smartphone size={18} className="text-pink-500" />
-                       <span>Test wibracji</span>
+                       <Smartphone size={18} className="text-pink-500 transition-transform duration-200 hover:scale-110" />
+                       <span className="visual-hierarchy-3">Test wibracji</span>
                      </button>
 
                      {/* Force Update */}
                      <button
                        onClick={handleForceUpdate}
-                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-all duration-200 focus-enhanced touch-target hover:scale-[1.02]`}
                        role="menuitem"
                        aria-label="Wymuś aktualizację"
                      >
-                       <RefreshCw size={18} className="text-blue-500" />
-                       <span>Wymuś aktualizację</span>
+                       <RefreshCw size={18} className="text-blue-500 transition-transform duration-200 hover:rotate-180" />
+                       <span className="visual-hierarchy-3">Wymuś aktualizację</span>
                      </button>
 
                     {/* Language */}
                     <button
                       onClick={handleLanguageChange}
-                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-colors`}
+                      className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-all duration-200 focus-enhanced touch-target hover:scale-[1.02]`}
                       role="menuitem"
                       aria-label={`${t('menu.language')} - ${t('language') === 'pl' ? 'Polski' : 'English'}`}
                     >
-                      <Languages size={18} className="text-indigo-500" />
-                      <span>{t('menu.language')}</span>
+                      <div className="transition-transform duration-200 hover:scale-110">
+                        <Languages size={18} className="text-indigo-500" />
+                      </div>
+                      <span className="visual-hierarchy-3">{t('menu.language')}</span>
                       <span className={`ml-auto text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                         {t('language') === 'pl' ? 'Polski' : 'English'}
                       </span>
