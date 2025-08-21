@@ -17,13 +17,13 @@ import {
   registerServiceWorker,
   requestNotificationPermission
 } from './utils/notifications';
-import { createConfetti, playSuccessSound, testVibration, initializeVibration } from './utils/celebrationEffects';
+import { createConfetti, playSuccessSound, initializeVibration } from './utils/celebrationEffects';
 import HabitList from './components/HabitList';
 import AddHabitForm from './components/AddHabitForm';
 import NotificationSettings from './components/NotificationSettings';
 import ImportExportModal from './components/ImportExportModal';
 import Logo from './components/Logo';
-import { Plus, Moon, Sun, Languages, Bell, Lock, Unlock, Menu, X, Database, Trash2, Smartphone, RefreshCw } from 'lucide-react';
+import { Plus, Moon, Sun, Languages, Bell, Lock, Unlock, Menu, X, Database, Trash2, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import './i18n/config';
@@ -213,211 +213,7 @@ function AppContent() {
     closeMenu();
   };
 
-  const handleTestVibration = () => {
-    // Zbierz informacje debugowania
-    const isPWA = window.matchMedia('(display-mode: standalone)').matches;
-    const userAgent = navigator.userAgent;
-    const platform = navigator.platform;
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    const isChrome = /Chrome/i.test(navigator.userAgent);
-    const hasVibrationAPI = 'vibrate' in navigator;
-    const isSecureContext = window.isSecureContext;
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
-    
-    // Dodaj globalną funkcję do testowania w konsoli
-    (window as any).testVibrateConsole = () => {
-      console.log('🔧 Test wibracji z konsoli...');
-      try {
-        // Zatrzymaj poprzednie wibracje
-        navigator.vibrate(0);
-        console.log('🛑 Zatrzymano poprzednie wibracje');
-        
-        // Test bardzo długiej wibracji (3 sekundy)
-        setTimeout(() => {
-          const result = navigator.vibrate(3000); // 3 sekundy
-          console.log('📳 navigator.vibrate(3000) wynik:', result);
-          
-          if (result) {
-            console.log('✅ Wibracja powinna trwać 3 sekundy - czy czujesz?');
-            alert('📳 Test wibracji uruchomiony!\n\nPowinieneś czuć silną wibrację przez 3 sekundy.\n\nJeśli nie czujesz:\n• Sprawdź ustawienia wibracji\n• Sprawdź tryb cichy\n• Spróbuj testVibratePattern()');
-          } else {
-            console.log('❌ navigator.vibrate zwrócił false');
-            alert('❌ navigator.vibrate zwrócił false\n\nMożliwe przyczyny:\n• Brak uprawnień\n• Tryb cichy\n• Wyłączona wibracja\n• Blokada przeglądarki');
-          }
-          
-          return result;
-        }, 100);
-        
-        return true;
-      } catch (e) {
-        console.error('❌ Błąd:', e);
-        alert('❌ Błąd: ' + e.message);
-        return false;
-      }
-    };
-    
-    // Dodaj również funkcję do testowania wzorów
-    (window as any).testVibratePattern = () => {
-      console.log('🔧 Test wzoru wibracji z konsoli...');
-      try {
-        // Zatrzymaj poprzednie wibracje
-        navigator.vibrate(0);
-        console.log('🛑 Zatrzymano poprzednie wibracje');
-        
-        setTimeout(() => {
-          // Długi, wyraźny wzór
-          const pattern = [800, 200, 800, 200, 1200, 300, 1500];
-          const result = navigator.vibrate(pattern);
-          console.log('📳 navigator.vibrate(' + JSON.stringify(pattern) + ') wynik:', result);
-          
-          if (result) {
-            console.log('✅ Wzór wibracji uruchomiony - powinien trwać około 5 sekund');
-            alert('📳 Wzór wibracji uruchomiony!\n\nPowinieneś czuć sekwencję wibracji przez około 5 sekund.\n\nWzór: długa-pauza-długa-pauza-bardzo długa-pauza-najdłuższa');
-          } else {
-            console.log('❌ navigator.vibrate zwrócił false');
-            alert('❌ Wzór wibracji nie zadziałał');
-          }
-          
-          return result;
-        }, 100);
-        
-        return true;
-      } catch (e) {
-        console.error('❌ Błąd:', e);
-        alert('❌ Błąd: ' + e.message);
-        return false;
-      }
-    };
-    
-    // Dodaj funkcję do testowania wszystkich wzorów aplikacji
-    (window as any).testAllVibrations = () => {
-      console.log('🔧 Test wszystkich wzorów wibracji aplikacji...');
-      
-      // Detect device type
-      const userAgent = navigator.userAgent;
-      const isPoco = /POCO/i.test(userAgent);
-      const isXiaomi = /Xiaomi|Mi |Redmi/i.test(userAgent);
-      
-      const patterns = isPoco || isXiaomi ? {
-        'completed': [1500, 300, 1500, 300, 2000],
-        'partial': [1000, 300, 1000],
-        'failed': [1200],
-        'not-applicable': [800]
-      } : {
-        'completed': [500, 150, 500, 150, 800],
-        'partial': [400, 200, 400],
-        'failed': [600],
-        'not-applicable': [300]
-      };
-      
-      let delay = 0;
-      Object.entries(patterns).forEach(([status, pattern]) => {
-        setTimeout(() => {
-          console.log(`📳 Testowanie wzoru dla statusu: ${status}`);
-          const result = navigator.vibrate(pattern);
-          console.log(`📳 ${status} pattern result:`, result);
-        }, delay);
-        delay += 3000; // 3 sekundy między testami dla dłuższych wzorów
-      });
-      
-      const deviceInfo = isPoco ? ' (POCO PATTERNS)' : isXiaomi ? ' (XIAOMI PATTERNS)' : ' (STANDARD PATTERNS)';
-      alert('🔧 Testowanie wszystkich wzorów wibracji' + deviceInfo + '!\n\nKolejno będą testowane wzory dla:\n• completed (za 0s)\n• partial (za 3s)\n• failed (za 6s)\n• not-applicable (za 9s)\n\nObserwuj konsolę i czuj wibracje!');
-      return true;
-    };
-    
-    // Dodaj specjalną funkcję dla urządzeń Poco
-    (window as any).testPocoVibration = () => {
-      console.log('🔥 POCO EXTREME VIBRATION TEST!');
-      
-      const extremePatterns = [
-        [3000], // 3 sekundy ciągłej wibracji
-        [2000, 500, 2000], // 2s-pauza-2s
-        [1000, 200, 1000, 200, 1000, 200, 1000], // Szybka sekwencja
-        [5000] // 5 sekund maksymalnej wibracji
-      ];
-      
-      let delay = 0;
-      extremePatterns.forEach((pattern, index) => {
-        setTimeout(() => {
-          console.log(`🔥 POCO TEST ${index + 1}:`, pattern);
-          navigator.vibrate(0); // Stop previous
-          setTimeout(() => {
-            const result = navigator.vibrate(pattern);
-            console.log(`🔥 POCO TEST ${index + 1} result:`, result);
-            if (result) {
-              console.log('✅ Jeśli to nie działa, sprawdź ustawienia telefonu!');
-            }
-          }, 100);
-        }, delay);
-        delay += 7000; // 7 sekund między testami
-      });
-      
-      alert('🔥 POCO EXTREME VIBRATION TEST!\n\nSeria 4 ekstremalnych testów:\n• Test 1: 3s ciągła wibracja\n• Test 2: 2s-pauza-2s\n• Test 3: Szybka sekwencja\n• Test 4: 5s maksymalna wibracja\n\nJeśli nadal nic nie czujesz, problem może być w ustawieniach MIUI!');
-      return true;
-    };
-    
-    // Wyświetl informacje w alertach
-    let debugInfo = `=== INFORMACJE DEBUGOWANIA WIBRACJI ===\n\n`;
-    debugInfo += `🔧 Środowisko:\n`;
-    debugInfo += `• PWA: ${isPWA ? 'TAK' : 'NIE'}\n`;
-    debugInfo += `• Android: ${isAndroid ? 'TAK' : 'NIE'}\n`;
-    debugInfo += `• Chrome: ${isChrome ? 'TAK' : 'NIE'}\n`;
-    debugInfo += `• Platform: ${platform}\n\n`;
-    
-    debugInfo += `🌐 Połączenie:\n`;
-    debugInfo += `• Protokół: ${protocol}\n`;
-    debugInfo += `• Host: ${hostname}\n`;
-    debugInfo += `• Secure Context: ${isSecureContext ? 'TAK' : 'NIE'}\n\n`;
-    
-    debugInfo += `📳 Vibration API:\n`;
-    debugInfo += `• Dostępne: ${hasVibrationAPI ? 'TAK' : 'NIE'}\n\n`;
-    
-    debugInfo += `🔧 DODATKOWE TESTY:\n`;
-    debugInfo += `W konsoli wpisz:\n`;
-    debugInfo += `• testVibrateConsole() - test 3s\n`;
-    debugInfo += `• testVibratePattern() - test długiego wzoru\n`;
-    debugInfo += `• testAllVibrations() - test wszystkich wzorów\n`;
-    if (isPoco || isXiaomi) {
-      debugInfo += `• testPocoVibration() - EKSTREMALNY TEST dla Poco/Xiaomi\n`;
-    }
-    debugInfo += `Sprawdź czy to działa!`;
-    
-    alert(debugInfo);
-    
-    // Wykonaj test wibracji
-    console.log('=== INFORMACJE DEBUGOWANIA WIBRACJI ===');
-    console.log('Czy aplikacja jest PWA?', isPWA);
-    console.log('User Agent:', userAgent);
-    console.log('Platform:', platform);
-    console.log('Czy jest Android?', isAndroid);
-    console.log('Czy jest Chrome?', isChrome);
-    const availableFunctions = ['testVibrateConsole()', 'testVibratePattern()', 'testAllVibrations()'];
-    if (isPoco || isXiaomi) {
-      availableFunctions.push('testPocoVibration()');
-    }
-    console.log('🔧 DODANO FUNKCJE: ' + availableFunctions.join(', ') + ' - użyj w konsoli!');
-    
-    const result = testVibration();
-    
-    // Wyświetl wynik testu
-    if (result) {
-      console.log('✅ Test wibracji zakończony pomyślnie');
-      const testFunctions = isPoco || isXiaomi ? 
-        'testVibrateConsole(), testVibratePattern(), testAllVibrations() lub testPocoVibration()' :
-        'testVibrateConsole(), testVibratePattern() lub testAllVibrations()';
-      
-      alert('✅ Test wibracji wykonany pomyślnie!\n\nJeśli nie poczułeś wibracji:\n• Sprawdź konsolę deweloperską\n• Wpisz: ' + testFunctions + '\n• Sprawdź ustawienia telefonu' + (isPoco ? '\n• Dla Poco F2 Pro spróbuj testPocoVibration()!' : ''));
-    } else {
-      console.log('❌ Test wibracji nie powiódł się');
-      const testFunctions = isPoco || isXiaomi ? 
-        'testVibrateConsole(), testVibratePattern(), testAllVibrations() lub testPocoVibration()' :
-        'testVibrateConsole(), testVibratePattern() lub testAllVibrations()';
-      
-      alert('❌ Test wibracji nie powiódł się!\n\nSpróbuj w konsoli:\n• Wpisz: ' + testFunctions + '\n• Sprawdź czy to działa\n• Użyj "Wymuś aktualizację"' + (isPoco ? '\n• Dla Poco F2 Pro spróbuj testPocoVibration()!' : ''));
-    }
-    setShowMenu(false);
-  };
+
 
   const handleForceUpdate = async () => {
     try {
@@ -708,16 +504,7 @@ function AppContent() {
                       </span>
                     </button>
 
-                    {/* Test Vibration */}
-                     <button
-                       onClick={handleTestVibration}
-                       className={`w-full px-4 py-3 text-left flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-50 text-gray-700'} transition-all duration-200 focus-enhanced touch-target hover:scale-[1.02]`}
-                       role="menuitem"
-                       aria-label="Test wibracji"
-                     >
-                       <Smartphone size={18} className="text-pink-500 transition-transform duration-200 hover:scale-110" />
-                       <span className="visual-hierarchy-3">Test wibracji</span>
-                     </button>
+
 
                      {/* Force Update */}
                      <button
